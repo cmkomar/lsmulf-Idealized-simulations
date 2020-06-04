@@ -19,10 +19,11 @@ pro PSD_Master_Plot, $
    
    NTIME_AVERAGE = nTime_average, AE8MIN = AE8MIN_check, $
    ITIME1 = iTime1_input, $
-   PSD_TIME_AVERAGE = psd_time_average
+   PSD_TIME_AVERAGE = psd_time_average, $
+   PSD_NORMALIZED = PSD_normalized
 
 ; Change to the run directory with the High Resolution (10s output)
-  CD, run_number + '/IM_Lstar/', CURRENT = original_dir
+  CD, run_number + '/IM_Lstar_expanded/', CURRENT = original_dir
 
 ; Sets the number of indices to average over.  
   IF NOT( KEYWORD_SET( nTime_average ) ) THEN $
@@ -135,8 +136,8 @@ pro PSD_Master_Plot, $
   mu_MeVperG = xmm * 100.
 
 ; Set the boundaries of the mu array for displaying in the output plots.
-  mu_minloc = MIN( WHERE( mu_MeVperG GE 2e2 ) )
-  mu_maxloc = MAX( WHERE( mu_MeVperG LE 6e3 ) )
+  mu_minloc = MIN( WHERE( mu_MeVperG GE 3e2 ) )
+  mu_maxloc = MAX( WHERE( mu_MeVperG LE 1e4 ) )
 
 ; Instantiates the variable for electron PSD array to interpolate to
 ; regularly space radial distances.
@@ -171,8 +172,8 @@ pro PSD_Master_Plot, $
 ; Loop over the mu indices necessary for plotting
      FOR $
         ;; iMu = 17, 49 $
-        ;; iMu = 0, nMu - 1 $
-        iMu = mu_minloc, mu_maxloc $
+        iMu = 0, nMu - 1 $
+        ;; iMu = mu_minloc, mu_maxloc $
      DO BEGIN ; iMu loop
 
 ; Loop over MLT indices to interpolate to regularly spaced radial grid
@@ -255,8 +256,8 @@ pro PSD_Master_Plot, $
         dPSD_profile_CT_index = 70
         
 ; Set the minimum and maximum log_10 PSD range
-        psd_normalized_min = 0.0
-        psd_normalized_max = 1.0
+        psd_normalized_min = -4.0
+        psd_normalized_max =  0.0
         
 ; Set the minimum and maximum r-gradient of PSD range
         gradr_max = -1.000
@@ -276,7 +277,7 @@ pro PSD_Master_Plot, $
            'PSD_Master_Plot_' + AE8_condition + '_Time_average_' + $
            STRTRIM( STRING( nTime_average * 10., FORMAT = '(I05)'), 2) + $
            's_' + $
-           STRTRIM( STRING( iTime1, FORMAT = '(I04)'), 2) + '-3.eps', $
+           STRTRIM( STRING( iTime1, FORMAT = '(I04)'), 2) + '-4.eps', $
            XSIZE = 10., YSIZE = 17., /INCHES, $
            /COLOR,/ENCAPSULATED, /PORTRAIT, BITS_PER_PIXEL = 8
      
@@ -309,6 +310,8 @@ pro PSD_Master_Plot, $
         char_thick = 3.
         char_size = 2.
 
+        cb_char_size = 1.33
+        
         ytick_length = -0.025
         
         xyouts_char_size = 1.25
@@ -383,7 +386,8 @@ pro PSD_Master_Plot, $
         
         LOADCT, 3, /SILENT
         IMAGE_CONT, $
-           PSD_Normalized( iTime0, *, 0, mu_minloc : mu_maxloc ), $
+           ALOG10( PSD_Normalized( iTime0, *, 0, mu_minloc : mu_maxloc ) ), $
+           ;; PSD_Normalized( iTime0, *, 0, mu_minloc : mu_maxloc ), $
            rr, xmm( mu_minloc : mu_maxloc ) * 100, $
            MIN = psd_normalized_min, MAX = psd_normalized_max, $
            TITLE = TEXTOIDL( 'Normalized PSD_{0}' ), $
@@ -403,9 +407,12 @@ pro PSD_Master_Plot, $
         COLORBAR, $
            /VERTICAL, /RIGHT, $
            TITLE = TEXTOIDL( 'Normalized PSD_0 [ A. U. ]' ), $
-           RANGE = [ psd_normalized_min, psd_normalized_max ], $
-           FORMAT = "(F3.1)", DIVISIONS = 5, $
-           CHARTHICK = char_thick, $
+           RANGE = 10^[ psd_normalized_min, psd_normalized_max ], $
+           FORMAT = "(E7.1)", DIVISIONS = 4, $
+           /YLOG, YMINOR = 9, YTICKLEN = -0.1, $
+           ;; RANGE = [ psd_normalized_min, psd_normalized_max ], $
+           ;; FORMAT = "(F3.1)", DIVISIONS = 5, $
+           CHARTHICK = char_thick, CHARSIZE = cb_char_size, $
            POSITION = $
            [ x_colorbar_start, $
              y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
@@ -451,6 +458,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '\nabla_r PSD_0' ), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YLOG, $
+           XTHICK = line_thick, YTHICK = line_thick, $
            CHARSIZE = char_size, CHARTHICK = char_thick, $
            YTICKLEN = ytick_length, $
            POSITION = $
@@ -465,7 +473,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '\nabla_r Normalized PSD_0 [ A. U. ]' ), $
            RANGE = [ gradR_max, gradR_min ], $
            FORMAT = "(F4.1)", DIVISIONS = 8, $
-           CHARTHICK = char_thick, $
+           CHARTHICK = char_thick, CHARSIZE = cb_char_size, $
            POSITION = $
            [ x_colorbar_start, $
              y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
@@ -504,6 +512,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '\nabla_r PSD_0' ), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), /XS, $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YS, /YLOG, $
+           XTHICK = line_thick, YTHICK = line_thick, $
            THICK = line_thick, CHARSIZE = char_size, CHARTHICK = char_thick, $
            YTICKLEN = ytick_length, $
            POSITION = $
@@ -516,9 +525,10 @@ pro PSD_Master_Plot, $
         
         LOADCT, 3, /SILENT
         IMAGE_CONT, $
-           PSD_Normalized( iTime1, *, 0, mu_minloc : mu_maxloc ), $
+           ALOG10( PSD_Normalized( iTime1, *, 0, mu_minloc : mu_maxloc ) ), $
+           ;; PSD_Normalized( iTime1, *, 0, mu_minloc : mu_maxloc ), $
            rr, xmm( mu_minloc : mu_maxloc ) * 100, $
-           MIN = 0., MAX = 1., $
+           MIN = psd_normalized_min, MAX = psd_normalized_max, $
            TITLE = TEXTOIDL( 'Normalized PSD_{1}' ), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), $
@@ -536,9 +546,12 @@ pro PSD_Master_Plot, $
         COLORBAR, $
            /VERTICAL, /RIGHT, $
            TITLE = TEXTOIDL( 'Normalized PSD_1 [ A. U. ]' ), $
-           RANGE = [ psd_normalized_min, psd_normalized_max ], $
-           FORMAT = "(F3.1)", DIVISIONS = 5, $
-           CHARTHICK = char_thick, $
+           RANGE = 10^[ psd_normalized_min, psd_normalized_max ], $
+           FORMAT = "(E7.1)", DIVISIONS = 4, $
+           /YLOG, YMINOR = 9, YTICKLEN = -0.1, $
+           ;; RANGE = [ psd_normalized_min, psd_normalized_max ], $
+           ;; FORMAT = "(F3.1)", DIVISIONS = 5, $
+           CHARTHICK = char_thick, CHARSIZE = cb_char_size, $
            POSITION = $
            [ x_colorbar_start, $
              y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
@@ -585,6 +598,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '\nabla_r PSD_1' ), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YLOG, $
+           XTHICK = line_thick, YTHICK = line_thick, $
            CHARSIZE = char_size, CHARTHICK = char_thick, $
            YTICKLEN = ytick_length, $
            POSITION = $
@@ -599,7 +613,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '\nabla_r Normalized PSD_1 [ A. U. ]' ), $
            RANGE = [ gradR_max, gradR_min ], $
            FORMAT = "(F4.1)", DIVISIONS = 8, $
-           CHARTHICK = char_thick, $
+           CHARTHICK = char_thick, CHARSIZE = cb_char_size, $
            POSITION = $
            [ x_colorbar_start, $
              y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
@@ -638,6 +652,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '\nabla_r PSD_1' ), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), /XS, $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YS, /YLOG, $
+           XTHICK = line_thick, YTHICK = line_thick, $
            THICK = line_thick, CHARSIZE = char_size, CHARTHICK = char_thick, $
            YTICKLEN = ytick_length, $
            POSITION = $
@@ -676,6 +691,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '% Difference'), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YLOG, $
+           XTHICK = line_thick, YTHICK = line_thick, $
            CHARSIZE = char_size, CHARTHICK = char_thick, $
            YTICKLEN = ytick_length, $
            POSITION = $
@@ -690,7 +706,7 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '% Difference [ Unitless ]' ), $
            RANGE = [ dPSD_min, dPSD_max ], $
            FORMAT = "(I3)", DIVISIONS = 6, $
-           CHARTHICK = char_thick, $
+           CHARTHICK = char_thick, CHARSIZE = cb_char_size, $
            POSITION = $
            [ x_colorbar_start, $
              y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
