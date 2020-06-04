@@ -1,0 +1,15 @@
+# Emacs Backup files
+*~
+
+# Images
+*.jpg
+Images/*
+
+# General Text files
+*.rtf
+
+# Telecon Communications
+Telecons/*
+
+# Texfiles
+Texfiles/*

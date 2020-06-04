@@ -1,3 +1,14 @@
+; MakeIMF_HartingerHSR.pro - edited by Colin Komar
+; Changes to the original file provided by Michael Hartinger to make
+; the IMF files for SWMF.  Notable changes include:
+; 1) A 2 hour initialization for all simulations
+; 2) Provides user to input quantities rather than editing the
+; 	original source code and recompiling.
+
+
+
+; The notes detailed below are from the original file made by Michael
+; Hartinger:
 ; LSMULF_generateIMF.pro
 ;
 ; Program to generate IMF.dat files for SWMF/CIMI studies of Large
@@ -40,22 +51,82 @@
 ; well as some of the other wave properties.
 ;
 
-pro LSMULF_generateIMF
+PRO MakeIMF_HartingerHSR, SWMFLOG = DoWriteSWMFLog
 
 ;***CONSTANTS
 
-  k = 1.38e-23
+  k_b = 1.38e-23
   gamma = 5. / 3.
   mi = 1.67e-27
+
+; Define bacground solar wind quantities for output file. Apart from
+; temperature/density variations, these are the same as in Komar et
+; al., 2017 background density is 5/cc
+
+  bx0 = 0.
+  by0 = 0.
+  bz0 = 5.
+
+  vx0 = -400.
+  vy0 = 0.
+  vz0 = 0.
+  
+  n0 = 5.
 
 ; background sound speed is 40 km/s, as in Claudierre et al., 2009
 
   cs = 40e3
-  Temp0 = ( mi * cs ^ 2. ) / ( gamma * k )
-  print, "TEMP0: ", temp0
-; simulation length in hours - should be at least four hours
+  Temp0 = ( mi * cs ^ 2. ) / ( gamma * k_b )
+  
+; ***OPTIONS FOR WAVE PARAMETERS
+; DEFAULTS, An = .2,f = .003,tau = 6,dw = 0
+; amplitude as fraction of background density
+  
+  An = 0.
+  PRINT, 'Suggested density amplitudes (in % of background n0):'
+  PRINT, ' 10, 15, 20, 25, 30'
+  READ, 'Please enter amplitude in percent: ', An
 
-  simlength = 12.
+; frequency options in Hz
+
+  f = 0.
+  PRINT, 'Suggested frequencies of density fluctuations (in mHz): '
+  PRINT, '1, 2, 3, 4, 5'
+  READ, 'Please enter frequency (in mHz): ', f
+
+; duration of wave packet in units of hours?
+
+  tau = 0.
+  PRINT, 'Suggested wave packet duration (in hours): '
+  PRINT, '0.25, 0.50, 1.00, 2.00, 4.00'
+  READ, 'Please enter wavepacket e-folding time (in hours): ', tau
+
+; Bandwidth options in units of width of flat top spectrum as function
+; of frequency.  Whatever width is chosen, the spacing of frequency
+; elements will be .0001 Hz.  i.e., of f = .003 and dw = .2, the spectrum
+; will consists of frequencies at:
+; .0024, .0025, .0026, ..., 0034, .0035, .0036 if 0 is chosen, only a
+; single frequency will be used
+
+  dw = [ 0, .1, .2, .3, .4 ]
+
+; density fluctuation parameters
+
+  An1 = An * n0 / 100.
+  f1 = f * 10^( -3. )
+  tau1 = tau * 3600.
+  dw1 = dw( 0 )
+
+; peak time of Gaussian wave packet occurs 5 e-folding distances after
+; 2 hour simulation initialization period.
+
+  ts = tau1 * SQRT( 5 )
+
+; simulation length in hours - 2 hours initialization, ten e-folding
+;                              Gaussian periods, and 2 hours steady
+;                              conditions at the end.
+
+  pulselength = 2. * ts
 
 ; Time resolution - 10 seconds should be more than enough to capture
 ;                   the frequencies we're interested in (below 5 mHz),
@@ -64,61 +135,21 @@ pro LSMULF_generateIMF
 
   simres = 10.
 
-; peak time of Gaussian wave packet is 3 hours into the simulation
-
-  ts = 6. * 60. * 60.
-
 ; define time array in seconds
 
-  npts = simlength * 60. * 60. / simres + 1.
-  t = DINDGEN( npts ) * simres
+  npts = pulselength / simres + 1.
+  t = ( DINDGEN( npts ) + 1 ) * simres
   
-; millescond array for IMF file
-
-  msecs = FLTARR( npts )
-
 ; get year, month, day, hour, minute, second arrays that will be used
 ; for output file the start time is meaningless since these are
 ; idealized simulations
   
-  jult = JULDAY( 2, 2, 2002, 1, 1, t )
+  jult = JULDAY( 1, 1, 2000, 0, 0, t )
   CALDAT, jult, M, D, Y, HH, MINS, S
 
-; ***OPTIONS FOR WAVE PARAMETERS
-; DEFAULTS, An = .2,f = .003,tau = 6,dw = 0
-; amplitude as fraction of background density
-  
-  An = [ .1, .15, .2, .25, .3 ]
+; millescond array for IMF file
 
-; frequency options in Hz
-
-  f = [ .001, .002, .003, .004, .005 ]
-
-; duration of wave packet in units of wave period
-
-  tau = [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24 ]
-
-; Bandwidth options in units of width of flat top spectrum as function
-; of frequency.  Whatever width is chosen, the spacing of frequency
-; elements will be .0001 Hz.  i.e., of f = .003 and dw = .2, the spectrum
-; will consists of frequencies at
-; .0024,.0025,.0026,....0034,.0035,.0036 if 0 is chosen, only a single
-; frequency will be used
-
-  dw = [ 0, .1, .2, .3, .4 ]
-
-; Define solar wind quantities for output file. Apart from
-; temperature/density variations, these are the same as in Komar et
-; al., 2017 background density is 5/cc
-
-  n0 = 5.
-
-; density fluctuation parameters
-
-  An1 = An( 2 ) * n0
-  f1 = f( 4 )
-  tau1 = tau( 1 ) * ( 1. / f1 )
-  dw1 = dw( 0 )
+  msecs = FLTARR( npts )
 
   IF $
      ( dw1 EQ 0 ) $
@@ -127,7 +158,11 @@ pro LSMULF_generateIMF
      dn = An1 * $
           EXP( - ( ( t - ts ) / tau1 )^ 2 ) * $
           SIN( 2. * !PI * f1 * ( t - ts ) )
-     
+
+     W, 1, 2
+     PLOT, t, An1 * EXP( - ( ( t - ts ) / tau1 )^ 2 )
+     PLOT, t, An1 * SIN( 2. * !PI * f1 * ( t - ts ) )
+
   ENDIF ELSE BEGIN
 
      ; define frequency array
@@ -157,32 +192,114 @@ pro LSMULF_generateIMF
 
   ENDELSE
 
-  bx = FLTARR( npts )
-  by = FLTARR( npts )
-  bz = FLTARR( npts ) + 5.
-  vx = FLTARR( npts ) - 400.
-  vy = FLTARR( npts )
-  vz = FLTARR( npts )
+  bx = FLTARR( npts ) + bx0
+  by = FLTARR( npts ) + by0
+  bz = FLTARR( npts ) + bz0
+  vx = FLTARR( npts ) + vx0
+  vy = FLTARR( npts ) + vy0
+  vz = FLTARR( npts ) + vz0
   n = n0 + dn
 
   Temp = FLTARR(npts) + Temp0 - ( Temp0 * dn ) / n
-  
-  PLOT, t / 3600., TEMP
+
+  W, 1, 1
+  PLOT, t / 3600., dn
   
   ; write file out
-  OPENW, lun, '~/Research/Hartinger_HSR/IMF.dat', $
+  OPENW, lun, '~/Research/Hartinger_HSR/IMF_' + $
+         'An1_' + $
+         STRTRIM( STRING( An1, FORMAT = '(F05.3)' ), 2 ) + $
+         '_f1_' + $
+         STRTRIM( STRING( f1, FORMAT = '(F05.3)'), 2 ) + $
+         '_tau1_' + $
+         STRTRIM( STRING( tau1 / 3600., FORMAT = '(F05.3)'), 2 ) + $
+         '_dw1_' + $
+         STRTRIM( STRING( dw1, FORMAT = '(F05.3)'), 2 ) + $
+         '.dat', $
          WIDTH = 80, /GET_LUN
   format_string = '( I4, 1X, I02, 1X, I02, 1X, I02, 1X, I02, 1X, ' + $
                  'I02, 1X, I03, 1X, F7.1, 1X, F7.1, 1X, ' + $
                  'F7.1, 1X, F7.1, 1X, F7.1, 1X, F7.1, 1X, F7.3, ' + $
-                 '2X, F10.2 )'
+                  '2X, F10.2 )'
+  PRINTF, lun, "#COOR"
+  PRINTF, lun, "GSE"
+  PRINTF, lun, ""
+  PRINTF, lun, "#START"
+  PRINTF, lun, 2000, 01, 01, 00, 00, 00, 0, $
+          bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $
+          FORMAT = format_string
+  PRINTF, lun, 2000, 01, 01, 02, 00, 00, 0, $
+          bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $
+          FORMAT = format_string
   PRINTF, lun, TRANSPOSE( [ [ Y ], [ M ], [ D ], $
-                            [ HH ], [ MINS ], [ S ], [ msecs ], $
+                            [ HH + 2. ], [ MINS ], [ S ], [ MSECS ], $
                             [ bx ], [ by ], [ bz ], $
                             [ vx ], [ vy ], [ vz ], $
                             [ n ], [ Temp ] ] ), $
           FORMAT = format_string
+  PRINTF, lun, $
+          Y( npts - 1 ), M( npts - 1 ), D( npts - 1 ), $
+          HH( npts - 1) + 2., MINS( npts - 1 ), $
+          S( npts - 1 ) + simres, MSECS( npts - 1 ), $
+          bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $
+          FORMAT = format_string
+  PRINTF, lun, $
+          Y( npts - 1 ), M( npts - 1 ), D( npts - 1 ), $
+          HH( npts - 1) + 4., MINS( npts - 1 ), $
+          S( npts - 1 ) + simres, MSECS( npts - 1 ), $
+          bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $	
+          FORMAT = format_string
   CLOSE, lun
   FREE_LUN, lun
+  
+  IF $
+     KEYWORD_SET( DoWriteSWMFLog ) $
+  THEN BEGIN
+
+     ; write out SWMF logfile
+     OPENW, lun, '~/Research/Hartinger_HSR/IMF.log', $
+            WIDTH = 80, /GET_LUN
+     format_string = '( I4, 1X, I02, 1X, I02, 1X, I02, 1X, I02, 1X, ' + $
+                     'I02, 1X, I03, 1X, F7.1, 1X, F7.1, 1X, ' + $
+                     'F7.1, 1X, F7.1, 1X, F7.1, 1X, F7.1, 1X, F7.3, ' + $
+                     '2X, F10.2 )'
+     PRINTF, lun, "SWMF SW Logfile: An = " + $
+             STRTRIM( STRING( An1, FORMAT = '(F05.3)' ), 2 ) + $
+             ", f = " + $
+             STRTRIM( STRING( f1, FORMAT = '(F05.3)'), 2 ) + $
+             ", tau = " + $
+             STRTRIM( STRING( tau1 / 3600., FORMAT = '(F05.3)'), 2 ) + $
+             ', dw = ' + $
+             STRTRIM( STRING( dw1, FORMAT = '(F05.3)'), 2 )
+
+     PRINTF, lun, "year month day hour minute second ms bx by bz vx vy nz n T"
+     PRINTF, lun, 2000, 01, 01, 00, 00, 00, 0, $
+             bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $
+             FORMAT = format_string
+     PRINTF, lun, 2000, 01, 01, 02, 00, 00, 0, $
+             bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $
+             FORMAT = format_string
+     PRINTF, lun, TRANSPOSE( [ [ Y ], [ M ], [ D ], $
+                               [ HH + 2. ], [ MINS ], [ S ], [ MSECS ], $
+                               [ bx ], [ by ], [ bz ], $
+                               [ vx ], [ vy ], [ vz ], $
+                               [ n ], [ Temp ] ] ), $
+             FORMAT = format_string
+     PRINTF, lun, $
+             Y( npts - 1 ), M( npts - 1 ), D( npts - 1 ), $
+             HH( npts - 1) + 2., MINS( npts - 1 ), $
+             S( npts - 1 ) + simres, MSECS( npts - 1 ), $
+             bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $
+             FORMAT = format_string
+     PRINTF, lun, $
+             Y( npts - 1 ), M( npts - 1 ), D( npts - 1 ), $
+             HH( npts - 1) + 4., MINS( npts - 1 ), $
+             S( npts - 1 ) + simres, MSECS( npts - 1 ), $
+             bx0, by0, bz0, vx0, vy0, vz0, n0, Temp0, $	
+             FORMAT = format_string
+     CLOSE, lun
+     FREE_LUN, lun
+
+  ENDIF
   
 END
