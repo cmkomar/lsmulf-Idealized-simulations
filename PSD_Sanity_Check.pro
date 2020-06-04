@@ -118,18 +118,18 @@ y_subplot_size = $
 
 W, numx_subplots, numy_subplots + 1
 
-fmin = 1e-8
+fmin = 1e-10
 fmax = 1e-5
 
 ny = numy_subplots
-LOADCT, 33, /SILENT
+LOADCT, 3, /SILENT
 IMAGE_CONT, $
-   alog10(psd_1709_AE8MAX_0( *, *, 37 )), $
+   psd_1709_AE8MAX_0( *, *, 37 ), $
    time_1709_AE8MAX_0, rr_1709_AE8MAX_0, $
    TITLE = 'w/o Waves', $
    XTITLE = 'Simulation Time [ hours ]', $
    YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
-   MIN = alog10(fmin), MAX = alog10(fmax), $
+   MIN = fmin, MAX = fmax, $
    POSITION = $
    [ x_start, $
      y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
@@ -146,10 +146,10 @@ MAKELINEY, $
 MAKELINEX, $
    rr_1709_AE8MAX_0( iR ), $
    LINESTYLE = 1, COLOR = 255, THICK = 3
-LOADCT, 33, /SILENT
+LOADCT, 3, /SILENT
 COLORBAR, $
    RANGE = [ fmin, fmax ], $
-   DIVISIONS = 3, $
+   DIVISIONS = 5, $
    /VERTICAL, /RIGHT, $
    TITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
    POSITION = $
@@ -158,7 +158,8 @@ COLORBAR, $
      x_start + x_subplot_size + .050, $
      y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
    /NORM, $
-   TICKNAMES = [ TEXTOIDL( '10^{-8}' ), TEXTOIDL( '10^{-7}' ), $
+   TICKNAMES = [ TEXTOIDL( '10^{-10}' ), TEXTOIDL( '10^{-9}' ), $
+                 TEXTOIDL( '10^{-8}' ), TEXTOIDL( '10^{-7}' ), $
                  TEXTOIDL( '10^{-6}' ), TEXTOIDL( '10^{-5}' ) ], $
    TICKLEN = -0.25, $
    CHARSIZE = 2, CHARTHICK = 3
@@ -181,14 +182,14 @@ MAKELINEX, $
    LINESTYLE = 2, THICK = 3
 ny = ny - 1
 
-LOADCT, 33, /SILENT
+LOADCT, 3, /SILENT
 IMAGE_CONT, $
-   alog10(psd_1701_AE8MAX_0( *, *, 37 )), $
+   psd_1701_AE8MAX_0( *, *, 37 ), $
    time_1701_AE8MAX_0, rr_1701_AE8MAX_0, $
    TITLE = 'w/  Waves', $
    XTITLE = 'Simulation Time [ hours ]', $
    YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
-   min = alog10(fmin),max = alog10(fmax), $
+   min = fmin,max = fmax, $
    POSITION = $
    [ x_start, $
      y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
@@ -207,10 +208,10 @@ MAKELINEY, $
 MAKELINEX, $
    rr_1701_AE8MAX_0( iR ), $
    LINESTYLE = 1, COLOR = 255, THICK = 3
-LOADCT, 33, /SILENT
+LOADCT, 3, /SILENT
 COLORBAR, $
    RANGE = [ fmin, fmax ], $
-   DIVISIONS = 3, $
+   DIVISIONS = 5, $
    /VERTICAL, /RIGHT, $
    TITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
    POSITION = $
@@ -219,7 +220,8 @@ COLORBAR, $
      x_start + x_subplot_size + .050, $
      y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
    /NORM, $
-   TICKNAMES = [ TEXTOIDL( '10^{-8}' ), TEXTOIDL( '10^{-7}' ), $
+   TICKNAMES = [ TEXTOIDL( '10^{-10}' ), TEXTOIDL( '10^{-9}' ), $
+                 TEXTOIDL( '10^{-8}' ), TEXTOIDL( '10^{-7}' ), $
                  TEXTOIDL( '10^{-6}' ), TEXTOIDL( '10^{-5}' ) ], $
    TICKLEN = -0.25, $
    CHARSIZE = 2, CHARTHICK = 3
@@ -569,106 +571,133 @@ DO BEGIN
 
    SET_PLOT, 'PS'
    DEVICE, $
-      FILENAME = $
-      	'Images/PSD_Line_Plot_mu' + $
-      	STRTRIM( STRING( iMu, FORMAT = '(I02)' ), 2 ) + $
-      	'.eps', $
+      FILENAME = 'Images/PSD_Line_Plot_mu' + $
+      		STRTRIM( STRING( iMu, FORMAT = '(I02)' ), 2 ) + $
+      '-1.eps', $
       XSIZE = 10., YSIZE = 10., /INCHES, $
       /ENCAPSULATED, /PORTRAIT, /COLOR, BITS_PER_PIXEL = 8
    
-   LOADCT, 0, /SILENT
-   W, 2, 3
-    PLOT, rr_1709_AE8MAX_0, psd_1709_AE8MAX_0( 0, *, iMu ), $
-          TITLE = 'AE8MAX w/o  Waves, mu = ' + $
-          	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
-          	' MeV / G', $
-          XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
-          ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
-          ;; YRANGE = [ 1d-10, 1d0 ], $
-          YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
-          YRANGE = [ 0., MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
-          PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
-   OPLOT, rr_1709_AE8MAX_0, psd_time_average_1709_AE8MAX_0( *, iMu ), $
-          PSYM =  6
-    PLOT, rr_1709_AE8MAX_0, psd_1709_AE8MAX_0( 0, *, iMu ), $
-          TITLE = 'AE8MAX w/o  Waves, mu = ' + $
-          	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
-          	' MeV / G', $
-          XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
-          YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
-          ;; YRANGE = [ 1d-10, 1d0 ], $
-          ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
-          YRANGE = [ 0., MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
-          PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
-   OPLOT, rr_1709_AE8MAX_0, psd_time_average_1709_AE8MAX_0( *, iMu ), $
-          PSYM =  6
-
-    PLOT, rr_1701_AE8MAX_0, psd_1701_AE8MAX_0( 0, *, iMu ), $
-          TITLE = 'AE8MAX w/  Waves, mu = ' + $
-          	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
-          	' MeV / G', $
-          XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
-          ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
-          ;; YRANGE = [ 1d-10, 1d0 ], $
-          YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
-          YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
-          PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
-   OPLOT, rr_1701_AE8MAX_0, psd_time_average_1701_AE8MAX_0( *, iMu ), $
-          PSYM =  6
-    PLOT, rr_1701_AE8MAX_0, psd_1701_AE8MAX_0( 0, *, iMu ), $
-          TITLE = 'AE8MAX w/  Waves, mu = ' + $
-          	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
-          	' MeV / G', $
-          XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
-          YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
-          ;; YRANGE = [ 1d-10, 1d0 ], $
-          ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
-          YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
-          PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
-   OPLOT, rr_1701_AE8MAX_0, psd_time_average_1701_AE8MAX_0( *, iMu ), $
-          PSYM =  6
-
-    PLOT, rr_1701_AE8MIN_0, psd_1701_AE8MIN_0( 0, *, iMu ), $
-          TITLE = 'AE8MIN w/  Waves, mu = ' + $
-          	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
-          	' MeV / G', $
-          XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
-          ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
-          ;; YRANGE = [ 1d-10, 1d0 ], $
-          YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
-          YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
-          PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
-   OPLOT, rr_1701_AE8MIN_0, psd_time_average_1701_AE8MIN_0( *, iMu ), $
-          PSYM =  6
-    PLOT, rr_1701_AE8MIN_0, psd_1701_AE8MIN_0( 0, *, iMu ), $
-          TITLE = 'AE8MIN w/  Waves, mu = ' + $
-          	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
-          	' MeV / G', $
-          XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
-          YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
-          ;; YRANGE = [ 1d-10, 1d0 ], $
-          ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
-          YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
-          PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
-   OPLOT, rr_1701_AE8MIN_0, psd_time_average_1701_AE8MIN_0( *, iMu ), $
-          PSYM =  6
-
-   ;; W, 1, 1
    ;; LOADCT, 0, /SILENT
-
-   ;;  PLOT, rr_1709_AE8MAX_0, psd_time_average_1709_AE8MAX_0( *, iMu ), $
+   ;; W, 2, 3
+   ;;  PLOT, rr_1709_AE8MAX_0, psd_1709_AE8MAX_0( 0, *, iMu ), $
+   ;;        TITLE = 'AE8MAX w/o  Waves, mu = ' + $
+   ;;        	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
+   ;;        	' MeV / G', $
+   ;;        XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+   ;;        ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+   ;;        ;; YRANGE = [ 1d-10, 1d0 ], $
+   ;;        YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+   ;;        YRANGE = [ 0., MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
+   ;;        PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
+   ;; OPLOT, rr_1709_AE8MAX_0, psd_time_average_1709_AE8MAX_0( *, iMu ), $
+   ;;        PSYM =  6
+   ;;  PLOT, rr_1709_AE8MAX_0, psd_1709_AE8MAX_0( 0, *, iMu ), $
    ;;        TITLE = 'AE8MAX w/o  Waves, mu = ' + $
    ;;        	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
    ;;        	' MeV / G', $
    ;;        XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
    ;;        YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
-   ;;        YRANGE = 10^[ yr_min, yr_max  ], $
+   ;;        ;; YRANGE = [ 1d-10, 1d0 ], $
+   ;;        ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+   ;;        YRANGE = [ 0., MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
    ;;        PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
-   ;; OPLOT, rr_1709_AE8MAX_0, psd_time_average_1701_AE8MAX_0( *, iMu ), $
+   ;; OPLOT, rr_1709_AE8MAX_0, psd_time_average_1709_AE8MAX_0( *, iMu ), $
    ;;        PSYM =  6
+
+   ;;  PLOT, rr_1701_AE8MAX_0, psd_1701_AE8MAX_0( 0, *, iMu ), $
+   ;;        TITLE = 'AE8MAX w/  Waves, mu = ' + $
+   ;;        	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
+   ;;        	' MeV / G', $
+   ;;        XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+   ;;        ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+   ;;        ;; YRANGE = [ 1d-10, 1d0 ], $
+   ;;        YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+   ;;        YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
+   ;;        PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
+   ;; OPLOT, rr_1701_AE8MAX_0, psd_time_average_1701_AE8MAX_0( *, iMu ), $
+   ;;        PSYM =  6
+   ;;  PLOT, rr_1701_AE8MAX_0, psd_1701_AE8MAX_0( 0, *, iMu ), $
+   ;;        TITLE = 'AE8MAX w/  Waves, mu = ' + $
+   ;;        	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
+   ;;        	' MeV / G', $
+   ;;        XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+   ;;        YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+   ;;        ;; YRANGE = [ 1d-10, 1d0 ], $
+   ;;        ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+   ;;        YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
+   ;;        PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
+   ;; OPLOT, rr_1701_AE8MAX_0, psd_time_average_1701_AE8MAX_0( *, iMu ), $
+   ;;        PSYM =  6
+
+   ;;  PLOT, rr_1701_AE8MIN_0, psd_1701_AE8MIN_0( 0, *, iMu ), $
+   ;;        TITLE = 'AE8MIN w/  Waves, mu = ' + $
+   ;;        	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
+   ;;        	' MeV / G', $
+   ;;        XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+   ;;        ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+   ;;        ;; YRANGE = [ 1d-10, 1d0 ], $
+   ;;        YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+   ;;        YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
+   ;;        PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
+   ;; OPLOT, rr_1701_AE8MIN_0, psd_time_average_1701_AE8MIN_0( *, iMu ), $
+   ;;        PSYM =  6
+   ;;  PLOT, rr_1701_AE8MIN_0, psd_1701_AE8MIN_0( 0, *, iMu ), $
+   ;;        TITLE = 'AE8MIN w/  Waves, mu = ' + $
+   ;;        	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
+   ;;        	' MeV / G', $
+   ;;        XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+   ;;        YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+   ;;        ;; YRANGE = [ 1d-10, 1d0 ], $
+   ;;        ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+   ;;        YRANGE = [ 0, MAX( psd_1709_AE8MAX_0( 0, *, iMu ) ) ] * 1.2, $
+   ;;        PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
+   ;; OPLOT, rr_1701_AE8MIN_0, psd_time_average_1701_AE8MIN_0( *, iMu ), $
+   ;;        PSYM =  6
+
+   W, 1, 1
+   LOADCT, 0, /SILENT
+   TVLCT, 255, 000, 000, 101
+   TVLCT, 000, 000, 255, 102
+   ;;  PLOT, rr_1709_AE8MAX_0, psd_time_average_1709_AE8MAX_0( *, iMu ), $
+   ;;        TITLE = 'AE8MAX w/o  Waves, mu = ' + $
+   ;;        	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
+   ;;        	' MeV / G', $
+   ;;        XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+   ;;        YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+   ;;        YRANGE = 10^[ yr_min, yr_max  ], $
+   ;;        PSYM = -7, CHARSIZE = 2, CHARTHICK = 3, THICK = 2, $
+   ;;        XTHICK  = 3, YTHICK = 3
+   ;; OPLOT, rr_1709_AE8MAX_0, psd_time_average_1701_AE8MAX_0( *, iMu ), $
+   ;;        PSYM =  -6, COLOR = 101, THICK = 2
    ;; OPLOT, rr_1709_AE8MAX_0, psd_time_average_1701_AE8MIN_0( *, iMu ), $
-   ;;        PSYM =  4
+   ;;        PSYM =  -4, COLOR = 102, THICK = 2
+   ;; LEGEND, $
+   ;;    [ 'No Waves', 'AE8MAX', 'AE8MIN' ], $
+   ;;    PSYM = -[ 7, 6, 4 ], LINESTYLE = [ 0, 0, 0 ], $
+   ;;    COLOR = [ 000, 101, 102 ], $
+   ;;    BOX = 1, /TOP, /LEFT, NUMBER = 1.5, $
+   ;;    CHARTHICK = 3, THICK = 3
    
+    PLOT, rr_1709_AE8MAX_0, psd_time_average_1709_AE8MAX_0( *, iMu ), $
+          TITLE = 'AE8MAX w/o  Waves, mu = ' + $
+          	STRING( xmm_1701_AE8MIN_0( iMu ) * 100., FORMAT='(I4)') + $
+          	' MeV / G', $
+          XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+          YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+          YRANGE = 10^[ yr_min, yr_max  ], /YLOG, $
+          PSYM = -7, CHARSIZE = 2, CHARTHICK = 3, THICK = 2, $
+          XTHICK  = 3, YTHICK = 3
+   OPLOT, rr_1709_AE8MAX_0, psd_time_average_1701_AE8MAX_0( *, iMu ), $
+          PSYM =  -6, COLOR = 101, THICK = 2
+   OPLOT, rr_1709_AE8MAX_0, psd_time_average_1701_AE8MIN_0( *, iMu ), $
+          PSYM =  -4, COLOR = 102, THICK = 2
+   LEGEND, $
+      [ 'No Waves', 'AE8MAX', 'AE8MIN' ], $
+      PSYM = -[ 7, 6, 4 ], LINESTYLE = [ 0, 0, 0 ], $
+      COLOR = [ 000, 101, 102 ], $
+      BOX = 1, /BOTTOM, /RIGHT, NUMBER = 1.5, $
+      CHARTHICK = 3, THICK = 3
+      
 
    DEVICE, /CLOSE
    ;; READ, test_string
