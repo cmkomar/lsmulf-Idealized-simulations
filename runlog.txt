@@ -1,0 +1,55 @@
+1701 - Priority Simulation: Amplitude=20%, Tau~0.5 hr, f=3 mHz, dw=0.
+FINISHED January 2018
+
+1702 - Amplitude=30%, Tau=4. hr, f=3 mHz, dw=0.
+FINISHED SEPTEMBER 2018
+
+1703 - Amplitude=20%, Tau=4. hr, f=3 mHz, dw=0.
+FINISHED SEPTEMBER 2018
+
+1704 - Amplitude=30%, Tau=4. hr, f=3 mHz, dw=0. 
+FINISHED OCTOBER 2018 ##### RERUN OF 1703 #####
+
+1705 - Amplitude=30%, Tau=2. hr, f=3 mHz, dw=0.
+
+1706 - Amplitude=20%, Tau=2. hr, f=3 mHz, dw=0.
+FINISHED OCTOBER 2018
+
+1707 - Amplitude=10%, Tau=2. hr, f=3 mHz, dw=0.
+
+1708 - Rerun of 1701, using 5th order scheme
+
+1709 - Rerun of 1701 with the null hypothesis (no wave driving)
+
+1710 - Run of 6 hour simulation with 10% background fluctuation with ULF 3 mHz
+
+1711 - Run of 6 hour simulation with 30% background fluctuation with ULF 3 mHz
+
+1712 - Run of 6 hour simulation with 20% background fluctuation with ULF 1 mHz
+
+1713 - Run of 6 hour simulation with 20% background fluctuation with ULF 5 mHz
+
+1714 - Extended run from run1709 Restart file using 20% background
+	fluctuation with frequency 2 mHz, gaussian profile
+
+1715 - Extended run from run1709 Restart file using 20% background
+	fluctuation with frequency 2 mHz, hyperbolic tan profile
+
+1716 - Extended run from run1709 Restart file using 40% background
+	fluctuation with frequency 2 mHz, gaussian profile
+
+1717 - Extended run from run1709 Restart file using 40% background
+	fluctuation with frequency 2 mHz, hyperbolic tan profile
+
+1718 - Extended run from run1709 Restart file using 80% background
+	fluctuation with frequency 2 mHz, gaussian profile
+
+1719 - Extended run from run1709 Restart file using 80% background
+	fluctuation with frequency 2 mHz, hyperbolic tan profile
+
+1720 - Extended run from run1709 Restart file using 20% background
+	fluctuation with frequency 2 mHz, gaussian profile, dw1=.1
+
+1721 - Extended run from run1709 Restart file using 20% background
+	fluctuation with frequency 2 mHz, hyperbolic tan profile,
+	dw1=.1
