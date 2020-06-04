@@ -45,7 +45,7 @@ pro PSD_Master_Plot, $
 ; SWMF/BATSRUS log data format
   GET_LOG, 'IMF.log', wlog0, wlognames, logtime0, timeunit
   CLEANLOG, logtime0, wlog0, logtime, wlog
-  
+
 ; Load the reduced electron PSD data (Reduced using only the minimum
 ; K-value, i.e. equatorially trapped particles); Use if switch to load
 ; between AE8 initial conditions.
@@ -63,7 +63,11 @@ pro PSD_Master_Plot, $
   nTime_PSD = N_ELEMENTS( houra )
   time_interp = DINDGEN( nTime_PSD ) * 10. / 3600.
 
-  density = INTERPOL( wlog(*,13), logtime - logtime( 0 ), time_interp )
+  logtime_interp = $
+     INTERPOL( logtime - logtime( 0 ), logtime - logtime( 0 ), time_interp )
+  
+  density = $
+     INTERPOL( wlog( *, 13 ), logtime - logtime( 0 ), time_interp )
 
 ; Sets up the interpolation parameters to interpolate electron PSD to
 ; regularly spaced radial distances
@@ -185,7 +189,7 @@ pro PSD_Master_Plot, $
               ( iTime1 ge nTime_average ) $
            THEN BEGIN
 
-              PRINT, "CALCULATING TIME AVERAGE NOW: "
+              ;; PRINT, "CALCULATING TIME AVERAGE NOW: "
 
 ; Calculates the time Averaged PSD
               FOR $
@@ -247,21 +251,20 @@ pro PSD_Master_Plot, $
 ; Set the PSD profile color table indices
 ; 16 - Purple (min) - Gold (max) color table
 ; 70 - Red (min) - Blue (max) color table     
-        PSD_profile_CT_index = 16
         gradR_PSD_profile_CT_index = 70
         dPSD_profile_CT_index = 70
         
 ; Set the minimum and maximum log_10 PSD range
-        psd_min = -10.
-        psd_max =  01.
+        psd_normalized_min = 0.0
+        psd_normalized_max = 1.0
         
 ; Set the minimum and maximum r-gradient of PSD range
-        gradr_max = -1.0005
-        gradr_min =  1.0005
+        gradr_max = -1.000
+        gradr_min =  1.000
 
 ; Set the minimum and maximum PSD percent difference range     
-        dPSD_min = -025.0
-        dPSD_max =  025.0
+        dPSD_min = -030.0
+        dPSD_max =  030.0
         
 ; Change output to Postscript     
         SET_PLOT, 'PS'
@@ -269,17 +272,50 @@ pro PSD_Master_Plot, $
 ; Begin plotting the time-averaged PSD profiles.
         DEVICE, $
            FILENAME = $
-           images_filepath + 'PSD_Master_Plot_Time_average_' + $
+           images_filepath + $
+           'PSD_Master_Plot_' + AE8_condition + '_Time_average_' + $
            STRTRIM( STRING( nTime_average * 10., FORMAT = '(I05)'), 2) + $
            's_' + $
-           STRTRIM( STRING( iTime1, FORMAT = '(I04)'), 2) + '-2.eps', $
+           STRTRIM( STRING( iTime1, FORMAT = '(I04)'), 2) + '-3.eps', $
            XSIZE = 10., YSIZE = 17., /INCHES, $
            /COLOR,/ENCAPSULATED, /PORTRAIT, BITS_PER_PIXEL = 8
      
 ; Prepare the device to output 6 plots plots     
-        ;; W, 1, 3
-        W, 1, 6
+        numx_subplots = 1
+        x_start = 0.100
+        x_end   = 0.850
+        x_space = 0.001
+        x_subplot_size = $
+           ( x_end - x_start - $
+             ( numx_subplots - 1 ) * x_space ) / $
+           numx_subplots
 
+        x_colorbar_start = 0.875
+        x_colorbar_end = 0.900
+
+        numy_subplots = 6
+        y_start = 0.020
+        y_end   = 0.970
+        y_space = 0.035
+        y_subplot_size = $
+           ( y_end - y_start - $
+             ( numy_subplots - 1 ) * y_space ) / $
+           numy_subplots
+
+        
+        line_thick = 3.
+        c_line_thick = 3.
+        
+        char_thick = 3.
+        char_size = 2.
+
+        ytick_length = -0.025
+        
+        xyouts_char_size = 1.25
+        xyouts_char_thick = 3.0
+
+        W, numx_subplots, numy_subplots + 4
+        
         min_density_plot = 3.
         max_density_plot = 7.
         delta_density_plot = 0.25
@@ -295,39 +331,88 @@ pro PSD_Master_Plot, $
         slider( iTime0 - nTime_Average : iTime0, * ) = 128 * 0.75
         slider( iTime1 - nTime_Average : iTime1, * ) = 128 * 1.25
 
+        ny = numy_subplots
         LOADCT, 70, /SILENT
-        TVLCT, 000, 000, 000, 000
         IMAGE_CONT, $
-           slider, logtime - logtime( 0 ), density_plot_arr, $
+           slider, logtime_interp, density_plot_arr, $
            TITLE = '', $
            MINVAL = 0, MAXVAL = 255, $
            XTITLE = 'Simulation Time [ hours ]', $
            XRANGE = [ 0, 6 ], /XS, $
-           XTICKS = 12, XTHICK = 3, $
+           XTICKS = 12, XTHICK = char_thick, $
            YTITLE = TEXTOIDL("n_{SW} [ cm^{-3} ]"), $
            YRANGE = [ 3, 7 ], /YS, $
-           YTICKS = 4, YMINOR = 4, YTHICK = 3, $
-           CHARSIZE = 2, CHARTHICK = 2
-        LOADCT, 0, /SILENT
-        OPLOT, logtime - logtime( 0 ), density, COLOR = 0, THICK = 3
-        XYOUTS, $
-           logtime( iTime0 - 0.5 * nTime_Average ) - logtime( 0 ), $
-           6.5, $
-           TEXTOIDL( 't_{0}' ), CHARSIZE = 1.25, CHARTHICK = 2, /DATA
-        XYOUTS, $
-           logtime( iTime1 - 0.5 * nTime_Average ) - logtime( 0 ), $
-           6.5, $
-           TEXTOIDL( 't_{1}' ), CHARSIZE = 1.25, CHARTHICK = 2, /DATA
+           YTICKS = 4, YMINOR = 4, YTHICK = char_thick, $
+           CHARSIZE = char_size, CHARTHICK = char_thick, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
 
+        LOADCT, 0, /SILENT
+        PLOT, $
+           logtime_interp, density, $
+           XTITLE = 'Simulation Time [ hours ]', $
+           XRANGE = [ 0, 6 ], /XS, $
+           XTICKS = 12, XTHICK = char_thick, $
+           YTITLE = TEXTOIDL("n_{SW} [ cm^{-3} ]"), $
+           YRANGE = [ 3, 7 ], /YS, $
+           YTICKS = 4, YMINOR = 4, YTHICK = char_thick, $
+           THICK = line_thick, CHARSIZE = char_size, CHARTHICK = char_thick, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+        XYOUTS, $
+           logtime_interp( iTime0 - 0.5 * nTime_Average ), $
+           6.5, $
+           TEXTOIDL( 't_{0}' ), $
+           CHARSIZE = xyouts_char_size, $
+           CHARTHICK = xyouts_char_thick, /DATA
+        XYOUTS, $
+           logtime_interp( iTime1 - 0.5 * nTime_Average ), $
+           6.5, $
+           TEXTOIDL( 't_{1}' ), $
+           CHARSIZE = xyouts_char_size, $
+           CHARTHICK = xyouts_char_thick, /DATA
+        ny = ny - 1
+        
         LOADCT, 3, /SILENT
         IMAGE_CONT, $
            PSD_Normalized( iTime0, *, 0, mu_minloc : mu_maxloc ), $
            rr, xmm( mu_minloc : mu_maxloc ) * 100, $
-           MIN = 0., MAX = 1., $
+           MIN = psd_normalized_min, MAX = psd_normalized_max, $
            TITLE = TEXTOIDL( 'Normalized PSD_{0}' ), $
-           XTHICK = 3, $
-           YTHICK = 3, YTICKLEN = -0.025, /YLOG, $
-           CHARSIZE = 2, CHARTHICK = 2
+           XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+           YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YLOG, $
+           XTHICK = char_thick, $
+           YTHICK = char_thick, $
+           CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+
+        COLORBAR, $
+           /VERTICAL, /RIGHT, $
+           TITLE = TEXTOIDL( 'Normalized PSD_0 [ A. U. ]' ), $
+           RANGE = [ psd_normalized_min, psd_normalized_max ], $
+           FORMAT = "(F3.1)", DIVISIONS = 5, $
+           CHARTHICK = char_thick, $
+           POSITION = $
+           [ x_colorbar_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_colorbar_end, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+        ny = ny - 1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -342,13 +427,11 @@ pro PSD_Master_Plot, $
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ; Load the red(min)-blue(max) color table     
         LOADCT, gradR_PSD_profile_CT_index, /SILENT
      
 ; Reverse the color table so that red is maximum
         REVERSECT
-        TVLCT, 000, 000, 000, 000
         
 ; Plot contour of the radial gradient of the initial (iTime0)
 ; Time-Averaged PSD profile
@@ -368,31 +451,68 @@ pro PSD_Master_Plot, $
            TITLE = TEXTOIDL( '\nabla_r PSD_0' ), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YLOG, $
-           CHARTHICK = 3, CHARSIZE = 2
-        
+           CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+
+        COLORBAR, $
+           /VERTICAL, /RIGHT, $
+           TITLE = TEXTOIDL( '\nabla_r Normalized PSD_0 [ A. U. ]' ), $
+           RANGE = [ gradR_max, gradR_min ], $
+           FORMAT = "(F4.1)", DIVISIONS = 8, $
+           CHARTHICK = char_thick, $
+           POSITION = $
+           [ x_colorbar_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_colorbar_end, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+
 ; Load green color to display harmonic resonance curves
         TVLCT, 000, 255, 000, 000
         
 ; Plot the first harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 1 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 0, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 0, COLOR = 000, /OVER
         
 ; Plot the second harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 2 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 2, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 2, COLOR = 000, /OVER
         
 ; Plot the third harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 3 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 3, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 3, COLOR = 000, /OVER
         
 ; Load purple color to display the 1 MeV resonance curve     
         TVLCT, 255, 000, 255, 100
         CONTOUR, energy, rr, mu_MeVperG, $
                  LEVEL = 1e3, $
-                 C_THICK = 3, C_LINESTYLE = 0, COLOR = 100, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 0, COLOR = 100, /OVER
+        
+        LOADCT, 0, /SILENT
+        PLOT, $
+           rr, mu_MeVperG( mu_minloc : mu_maxloc ), $
+           COLOR = 0, $
+           TITLE = TEXTOIDL( '\nabla_r PSD_0' ), $
+           XTITLE = TEXTOIDL( 'L [ R_E ]' ), /XS, $
+           YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YS, /YLOG, $
+           THICK = line_thick, CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM, /NODATA
+        ny = ny - 1
         
         LOADCT, 3, /SILENT
         IMAGE_CONT, $
@@ -400,9 +520,33 @@ pro PSD_Master_Plot, $
            rr, xmm( mu_minloc : mu_maxloc ) * 100, $
            MIN = 0., MAX = 1., $
            TITLE = TEXTOIDL( 'Normalized PSD_{1}' ), $
-           XTHICK = 3, $
-           YTHICK = 3, YTICKLEN = -0.025, /YLOG, $
-           CHARSIZE = 2, CHARTHICK = 2
+           XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+           YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), $
+           XTHICK = char_thick, $
+           YTHICK = char_thick, /YLOG, $
+           CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+
+        COLORBAR, $
+           /VERTICAL, /RIGHT, $
+           TITLE = TEXTOIDL( 'Normalized PSD_1 [ A. U. ]' ), $
+           RANGE = [ psd_normalized_min, psd_normalized_max ], $
+           FORMAT = "(F3.1)", DIVISIONS = 5, $
+           CHARTHICK = char_thick, $
+           POSITION = $
+           [ x_colorbar_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_colorbar_end, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+        ny = ny - 1
+           
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -422,7 +566,6 @@ pro PSD_Master_Plot, $
 
 ; Reverse the color table so that red is maximum
         REVERSECT
-        TVLCT, 000, 000, 000, 000
         
 ; Plot contour of the radial gradient of the initial (iTime1)
 ; Time-Averaged PSD profile
@@ -435,14 +578,34 @@ pro PSD_Master_Plot, $
            ;; REFORM( PSD_Time_Average( iTime1, *, 0, $
            ;;                           mu_minloc : $
            ;;                           mu_maxloc ) ), $
-           REFORM( PSD_Normalized( iTime0, *, 0, mu_minloc : mu_maxloc ) ), $
+           REFORM( PSD_Normalized( iTime1, *, 0, mu_minloc : mu_maxloc ) ), $
            /X ), $
            rr, mu_MeVperG( mu_minloc : mu_maxloc ), $
            MINVALUE = gradR_min, MAXVALUE = gradR_max, $
            TITLE = TEXTOIDL( '\nabla_r PSD_1' ), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YLOG, $
-           CHARTHICK = 3, CHARSIZE = 2
+           CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+
+        COLORBAR, $
+           /VERTICAL, /RIGHT, $
+           TITLE = TEXTOIDL( '\nabla_r Normalized PSD_1 [ A. U. ]' ), $
+           RANGE = [ gradR_max, gradR_min ], $
+           FORMAT = "(F4.1)", DIVISIONS = 8, $
+           CHARTHICK = char_thick, $
+           POSITION = $
+           [ x_colorbar_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_colorbar_end, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
         
 ; Load green color to display harmonic resonance curves
         TVLCT, 000, 255, 000, 000
@@ -450,24 +613,41 @@ pro PSD_Master_Plot, $
 ; Plot the first harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 1 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 0, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 0, COLOR = 000, /OVER
         
 ; Plot the second harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 2 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 2, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 2, COLOR = 000, /OVER
         
 ; Plot the third harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 3 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 3, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 3, COLOR = 000, /OVER
         
 ; Load purple color to display the 1 MeV resonance curve     
         TVLCT, 255, 000, 255, 100
         CONTOUR, energy, rr, mu_MeVperG, $
                  LEVEL = 1e3, $
-                 C_THICK = 3, C_LINESTYLE = 0, COLOR = 100, /OVER
-        
+                 C_THICK = c_line_thick, C_LINESTYLE = 0, COLOR = 100, /OVER
+
+        LOADCT, 0, /SILENT
+        PLOT, $
+           rr, mu_MeVperG( mu_minloc : mu_maxloc ), $
+           COLOR = 0, $
+           TITLE = TEXTOIDL( '\nabla_r PSD_1' ), $
+           XTITLE = TEXTOIDL( 'L [ R_E ]' ), /XS, $
+           YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YS, /YLOG, $
+           THICK = line_thick, CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM, /NODATA
+        ny = ny - 1
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;							;;;;;;;;
@@ -493,10 +673,30 @@ pro PSD_Master_Plot, $
            dPSD_Time_Average( iTime1, *, 0, mu_minloc : mu_maxloc ), $
            rr, mu_MeVperG( mu_minloc : mu_maxloc ), $
            MIN = dPSD_min, MAX = dPSD_max, $
-           ;; TITLE = TEXTOIDL( '% Difference'), $
+           TITLE = TEXTOIDL( '% Difference'), $
            XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
            YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YLOG, $
-           CHARTHICK = 3, CHARSIZE = 2
+           CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
+
+        COLORBAR, $
+           /VERTICAL, /RIGHT, $
+           TITLE = TEXTOIDL( '% Difference [ Unitless ]' ), $
+           RANGE = [ dPSD_min, dPSD_max ], $
+           FORMAT = "(I3)", DIVISIONS = 6, $
+           CHARTHICK = char_thick, $
+           POSITION = $
+           [ x_colorbar_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_colorbar_end, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM
         
 ; Load green color to display harmonic resonance curves
         TVLCT, 000, 255, 000, 000
@@ -504,71 +704,43 @@ pro PSD_Master_Plot, $
 ; Plot the first harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 1 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 0, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 0, COLOR = 000, /OVER
         
 ; Plot the second harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 2 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 2, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 2, COLOR = 000, /OVER
         
 ; Plot the third harmonic resonance curve
         CONTOUR, period, rr, mu_MeVperG, $
                  LEVEL = 3 / 0.003, $
-                 C_THICK = 3, C_LINESTYLE = 3, COLOR = 000, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 3, COLOR = 000, /OVER
         
 ; Load purple color to display the 1 MeV resonance curve     
         TVLCT, 255, 000, 255, 100
         CONTOUR, energy, rr, mu_MeVperG, $
                  LEVEL = 1e3, $
-                 C_THICK = 3, C_LINESTYLE = 0, COLOR = 100, /OVER
+                 C_THICK = c_line_thick, C_LINESTYLE = 0, COLOR = 100, /OVER
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;			PLOT 4				;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;	LINE PLOT OF THE EPHI WAVE POWER AT 3 MHZ	;;;;;;;;
-;;;;;;;;	  AS A FUNCTION OF L IN 15 MLT MERIDIAN		;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Make a line plot of the ULF wave power in the E_phi component at 3
-; mHz along the 15 MLT meridian
-        ;; LOADCT, 0, /SILENT
-        ;; PLOT, $
-        ;;    REFORM( r_sat( 0 , * ) ), ephi_window( *, 6 ), $
-        ;;    XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
-        ;;    XRANGE = [ rmin, rmax ], $
-        ;;    YTITLE = TEXTOIDL( 'PSD Amp. [ mV/m ]^2' ), $
-        ;;    YRANGE = [1d-12,1d0 ], /YLOG, THICK = 3
-     
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;			PLOT 5				;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;	 LINE PLOT OF THE ER WAVE POWER AT 3 MHZ	;;;;;;;;
-;;;;;;;;	  AS A FUNCTION OF L IN 15 MLT MERIDIAN		;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;							;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Make a line plot of the ULF wave power in the E_r component at 3
-; mHz along the 15 MLT meridian
-        ;; LOADCT, 0, /SILENT
-        ;; PLOT, $
-        ;;    REFORM( r_sat( 0 , * ) ), er_window( *, 6 ), $
-        ;;    XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
-        ;;    XRANGE = [ rmin, rmax ], $
-        ;;    YTITLE = TEXTOIDL( 'PSD Amp. [ mV/m ]^2' ), $
-        ;;    YRANGE = [1d-12,1d0 ], /YLOG, THICK = 3
+        LOADCT, 0, /SILENT
+        PLOT, $
+           rr, mu_MeVperG( mu_minloc : mu_maxloc ), $
+           COLOR = 0, $
+           TITLE = TEXTOIDL( '% Difference'), $
+           XTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+           YTITLE = TEXTOIDL( '\mu [ MeV / G ] ' ), /YS, /YLOG, $
+           CHARSIZE = char_size, CHARTHICK = char_thick, $
+           YTICKLEN = ytick_length, $
+           POSITION = $
+           [ x_start, $
+             y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+             x_start + x_subplot_size, $
+             y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+           /NORM, /NODATA
+        ny = ny - 1
         
         DEVICE, /CLOSE
+
 ; End If check for nTime_Average
      ENDIF
 
