@@ -13,3 +13,6 @@ Telecons/*
 
 # Texfiles
 Texfiles/*
+
+# Simulation Output
+run*/*

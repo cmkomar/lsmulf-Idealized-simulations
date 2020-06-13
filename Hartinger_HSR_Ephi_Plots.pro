@@ -64,18 +64,28 @@ PRO Make_HSR_Ephi_Plots, $
      
   ENDFOR
 
+  ones_loc = WHERE( rr GT 5. )
+  ones_gt_5re = FLTARR( numx, numy )
+  ones_gt_5re( ones_loc ) = 1.
+  
   FOR $
      iTime = 0, nTime - 1 $
-     ;; iTime = 1080, 1080 $     
+     ;; iTime = 1140, 1190, 21 $     
      ;; iTime = 1440, 1440 $     
   DO BEGIN
 
      PRINT, 'iTime = ', iTime
      
      er = $
-        ex( iTime, *, * ) * COS( phi ) + ey( iTime, *, * ) * SIN( phi ) 
+        ( ex( iTime, *, * ) * COS( phi ) + $
+          ey( iTime, *, * ) * SIN( phi ) ) * ones_gt_5re
+        
      ephi = $
-        -ex( iTime, *, * ) * SIN( phi ) + ey( iTime, *, * ) * COS( phi )
+        ( -ex( iTime, *, * ) * SIN( phi ) + $
+           ey( iTime, *, * ) * COS( phi ) ) * ones_gt_5re
+
+     ephi_max =  1.
+     ephi_min = -ephi_max
 
      IF $
         KEYWORD_SET( debug_check ) $
@@ -103,7 +113,7 @@ PRO Make_HSR_Ephi_Plots, $
            MINVAL = -2.5, MAXVAL = 2.5
         IMAGE_CONT, $
            ephi, xx, yy, $
-           MINVAL = -1., MAXVAL = 1.
+           MINVAL = ephi_min, MAXVAL = ephi_max
 
      ENDIF
 
@@ -136,8 +146,10 @@ PRO Make_HSR_Ephi_Plots, $
      x_subplot_end = 0.825
 
      y_subplot_start = 0.100
-     y_subplot_end = 0.99
-     
+     y_subplot_end = 0.940
+
+     jultime = julday( 01, 01, 2001, 00, 00, houra )
+     caldat, jultime, months, days, years, hours, mins, secs
      W, 1, 1
      LOADCT, 70, /SILENT
      REVERSECT
@@ -146,8 +158,11 @@ PRO Make_HSR_Ephi_Plots, $
         ephi, xx, yy, $
         XTITLE = TEXTOIDL( 'x [ R_E ]' ), $
         YTITLE = TEXTOIDL( 'y [ R_E ]' ), $
-        TITLE = '', $
-        MINVAL = -1.5, MAXVAL = 1.5, $
+        TITLE = $
+        STRTRIM(STRING( hours( itime ), FORMAT = '(I02)' ), 2 ) + ':' + $
+        STRTRIM(STRING( mins( itime ), FORMAT = '(I02)' ), 2 ) + ':' + $
+        STRTRIM(STRING( secs( itime ), FORMAT = '(I02)' ), 2 ), $
+        MINVAL = ephi_min, MAXVAL = ephi_max, $
         CHARSIZE = 2., CHARTHICK = 3, XTHICK = 3, YTHICK = 3, $
         POSITION = [ x_subplot_start, y_subplot_start, $
                      x_subplot_end, y_subplot_end ], /NORM
