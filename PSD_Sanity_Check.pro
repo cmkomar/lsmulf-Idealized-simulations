@@ -6,7 +6,7 @@
 ; Load the data for the priority wave and the null hypothesis
 ; simulations initialized with Lstar
 IF $
-   ( do_load_check_lstar_expanded EQ !NULL ) $
+   ( is_lstar_expanded_data_loaded EQ !NULL ) $
 THEN BEGIN
 
    PRINT, 'LOADING run_1701_AE8MAX: '
@@ -121,7 +121,7 @@ THEN BEGIN
    ;; ratio_1711_LSTAR_AE8MIN = $
    ;;    psd_1711_LSTAR_AE8MIN / psd_1709_LSTAR_AE8MIN
 
-   do_load_check_lstar_expanded = !false
+   is_lstar_expanded_data_loaded = !TRUE
 
 ENDIF
 

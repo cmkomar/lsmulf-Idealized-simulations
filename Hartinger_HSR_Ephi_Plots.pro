@@ -9,6 +9,7 @@ PRO Make_HSR_Ephi_Plots, $
    
    UX = ux, UY = uy, UZ = uz, $
    BX = bx, BY = by, BZ = bz, $
+   EX = ex, EY = ey, EZ = ez, $
    XX = xx, YY = yy, HOURA = houra, $
    NUMX = numx, NUMY = numy, $
 
@@ -30,63 +31,70 @@ PRO Make_HSR_Ephi_Plots, $
         XX = xx, YY = yy, HOURA = houra, $
         NUMX = numx, NUMY = numy
      
+     ex = ( uz * by - uy * bz ) * 1e-3
+     ey = ( ux * bz - uz * bx ) * 1e-3
+     ez = ( uy * bx - ux * by ) * 1e-3
+     
   ENDIF
 
   nTime = N_ELEMENTS( houra )
-
-  ex = ( uy * bz - uz * by ) * 1e-3
-  ey = ( ux * bz - uz * bx ) * 1e-3
-
+     
   rr = FLTARR( numx, numy )
   phi = FLTARR( numx, numy )
   
   FOR $
      i = 0, numx - 1 $
   DO BEGIN
-
+     
      FOR $
         j = 0, numy - 1 $
      DO BEGIN
-
+        
         rr_temp = $
            SQRT( xx( i ) ^ 2 + yy( j ) ^ 2 )
         rr( i, j ) = rr_temp
-
+        
         IF $
            ( ( yy( j ) eq 0. ) and ( xx( i ) le 0. ) ) $
         THEN $
            phi( i, j ) = !PI $
         ELSE $
            phi( i, j ) = $
-           	SIGN( yy( j ) ) * ACOS( xx( i ) / rr_temp )
+           SIGN( yy( j ) ) * ACOS( xx( i ) / rr_temp )
         
      ENDFOR
      
   ENDFOR
-
-  ones_loc = WHERE( rr GT 5. )
+  
+  ones_loc = WHERE( rr GT 3. )
   ones_gt_5re = FLTARR( numx, numy )
   ones_gt_5re( ones_loc ) = 1.
   
   FOR $
      iTime = 0, nTime - 1 $
      ;; iTime = 1140, 1190, 21 $     
+     ;; iTime = 1080, 1080 $     
      ;; iTime = 1440, 1440 $     
   DO BEGIN
 
      PRINT, 'iTime = ', iTime
      
      er = $
-        ( ex( iTime, *, * ) * COS( phi ) + $
-          ey( iTime, *, * ) * SIN( phi ) ) * ones_gt_5re
+        (  COS( phi ) * ex( iTime, *, * ) + $
+           SIN( phi ) * ey( iTime, *, * ) ) * ones_gt_5re
         
      ephi = $
-        ( -ex( iTime, *, * ) * SIN( phi ) + $
-           ey( iTime, *, * ) * COS( phi ) ) * ones_gt_5re
+        ( -SIN( phi ) * ex( iTime, *, * ) + $
+           COS( phi ) * ey( iTime, *, * ) ) * ones_gt_5re
 
-     ephi_max =  1.
+     er_max = 0.50
+     er_min = -er_max
+     
+     ephi_max =  1.0
      ephi_min = -ephi_max
-
+     delta_ephi = 0.5
+     nDivisions = ( ephi_max - ephi_min ) / delta_ephi
+     
      IF $
         KEYWORD_SET( debug_check ) $
      THEN BEGIN
@@ -110,7 +118,7 @@ PRO Make_HSR_Ephi_Plots, $
         
         IMAGE_CONT, $
            er, xx, yy, $
-           MINVAL = -2.5, MAXVAL = 2.5
+           MINVAL = er_min, MAXVAL = er_max
         IMAGE_CONT, $
            ephi, xx, yy, $
            MINVAL = ephi_min, MAXVAL = ephi_max
@@ -166,10 +174,11 @@ PRO Make_HSR_Ephi_Plots, $
         CHARSIZE = 2., CHARTHICK = 3, XTHICK = 3, YTHICK = 3, $
         POSITION = [ x_subplot_start, y_subplot_start, $
                      x_subplot_end, y_subplot_end ], /NORM
-     
+
      COLORBAR, $
         /RIGHT, /VERTICAL, $
-        RANGE = [ -1.5, 1.5 ], DIVISIONS = 6, FORMAT = '(F4.1)', $
+        RANGE = [ ephi_min, ephi_max], DIVISIONS = nDivisions, $
+        FORMAT = '(F4.1)', $
         POSITION = [ x_subplot_end + 0.025, y_subplot_start, $
                      x_subplot_end + 0.050, y_subplot_end ], /NORM, $
         TITLE = TEXTOIDL( ' E_\phi [ mV / m ] ' ), $
@@ -178,7 +187,6 @@ PRO Make_HSR_Ephi_Plots, $
      SET_PLOT, 'X'
      
   ENDFOR
-
 
   CD, current_dir
 

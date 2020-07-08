@@ -256,8 +256,9 @@ pro PSD_Master_Plot, $
         dPSD_profile_CT_index = 70
         
 ; Set the minimum and maximum log_10 PSD range
-        psd_normalized_min = -4.0
+        psd_normalized_min = -2.0
         psd_normalized_max =  0.0
+        nDivisions_PSD_normalized = 2
         
 ; Set the minimum and maximum r-gradient of PSD range
         gradr_max = -1.000
@@ -408,7 +409,7 @@ pro PSD_Master_Plot, $
            /VERTICAL, /RIGHT, $
            TITLE = TEXTOIDL( 'Normalized PSD_0 [ A. U. ]' ), $
            RANGE = 10^[ psd_normalized_min, psd_normalized_max ], $
-           FORMAT = "(E7.1)", DIVISIONS = 4, $
+           FORMAT = "(E7.1)", DIVISIONS = nDivisions_PSD_normalized, $
            /YLOG, YMINOR = 9, YTICKLEN = -0.1, $
            ;; RANGE = [ psd_normalized_min, psd_normalized_max ], $
            ;; FORMAT = "(F3.1)", DIVISIONS = 5, $
@@ -547,7 +548,7 @@ pro PSD_Master_Plot, $
            /VERTICAL, /RIGHT, $
            TITLE = TEXTOIDL( 'Normalized PSD_1 [ A. U. ]' ), $
            RANGE = 10^[ psd_normalized_min, psd_normalized_max ], $
-           FORMAT = "(E7.1)", DIVISIONS = 4, $
+           FORMAT = "(E7.1)", DIVISIONS = nDivisions_PSD_normalized, $
            /YLOG, YMINOR = 9, YTICKLEN = -0.1, $
            ;; RANGE = [ psd_normalized_min, psd_normalized_max ], $
            ;; FORMAT = "(F3.1)", DIVISIONS = 5, $
