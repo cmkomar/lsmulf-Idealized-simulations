@@ -18,6 +18,7 @@ pro PSD_Master_Plot, $
 ; FLAGS:
    
    NTIME_AVERAGE = nTime_average, AE8MIN = AE8MIN_check, $
+   DEGELING = degeling_check, $
    ITIME1 = iTime1_input, $
    PSD_TIME_AVERAGE = psd_time_average, $
    PSD_NORMALIZED = PSD_normalized
@@ -51,7 +52,10 @@ pro PSD_Master_Plot, $
 ; K-value, i.e. equatorially trapped particles); Use if switch to load
 ; between AE8 initial conditions.
 
-  IF $
+  IF KEYWORD_SET( degeling_check ) $
+  THEN $
+     AE8_Condition = 'Degeling' $
+  ELSE IF $
      KEYWORD_SET( AE8MIN_check ) $
   THEN $
      AE8_condition = 'AE8MIN' $
