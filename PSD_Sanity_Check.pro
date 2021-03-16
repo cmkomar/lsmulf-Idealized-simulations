@@ -149,6 +149,12 @@ THEN BEGIN
 
 ENDIF
 
+dim = SIZE( psd_1701_LSTAR_AE8MAX, /DIMENSIONS )
+nTime = dim( 0 )
+nR = dim( 1 )
+nMLT = dim( 2 )
+nMu = dim( 3 )
+
 PRINT, 'FINISHED LOAD'
 STOP
 
@@ -924,13 +930,96 @@ STOP                            ; OUTPUT AE8MIN .EPS PLOT
 FOR $
    iMu = mu_minloc, mu_maxloc $
 DO BEGIN
+
+   normalized_temporal_profile_psd_1709_LSTAR_DEGELING = $
+      psd_1709_LSTAR_DEGELING( *, *, 0, iMu )
+   normalized_temporal_profile_psd_1701_LSTAR_DEGELING = $
+      psd_1701_LSTAR_DEGELING( *, *, 0, iMu )
    
-   DEVICE, FILENAME = $
-           'Images/Lstar_Expanded/PSD_February_Plot_mu'+ $
-           STRTRIM( STRING( iMu, FORMAT = '(I03)' ), 2 ) + $
-           '_Lstar_expanded.eps', $
-           XSIZE = 10., YSIZE = 10., /INCHES, $
-           /PORTRAIT, /COLOR, /ENCAPSULATED, BITS_PER_PIXEL = 8
+   normalized_temporal_profile_psd_1709_LSTAR_AE8MAX = $
+      psd_1709_LSTAR_AE8MAX( *, *, 0, iMu )
+   normalized_temporal_profile_psd_1701_LSTAR_AE8MAX = $
+      psd_1701_LSTAR_AE8MAX( *, *, 0, iMu )
+   
+   normalized_temporal_profile_psd_1709_LSTAR_AE8MIN = $
+      psd_1709_LSTAR_AE8MIN( *, *, 0, iMu )
+   normalized_temporal_profile_psd_1701_LSTAR_AE8MIN = $
+      psd_1701_LSTAR_AE8MIN( *, *, 0, iMu )
+
+   normalized_radial_profile_psd_1709_LSTAR_DEGELING = $
+      psd_1709_LSTAR_DEGELING( *, *, 0, iMu )
+   normalized_radial_profile_psd_1701_LSTAR_DEGELING = $
+      psd_1701_LSTAR_DEGELING( *, *, 0, iMu )
+   
+   normalized_radial_profile_psd_1709_LSTAR_AE8MAX = $
+      psd_1709_LSTAR_AE8MAX( *, *, 0, iMu )
+   normalized_radial_profile_psd_1701_LSTAR_AE8MAX = $
+      psd_1701_LSTAR_AE8MAX( *, *, 0, iMu )
+   
+   normalized_radial_profile_psd_1709_LSTAR_AE8MIN = $
+      psd_1709_LSTAR_AE8MIN( *, *, 0, iMu )
+   normalized_radial_profile_psd_1701_LSTAR_AE8MIN = $
+      psd_1701_LSTAR_AE8MIN( *, *, 0, iMu )
+
+   FOR $
+      iRadius = 0, nR - 1 $
+   DO BEGIN
+
+      normalized_temporal_profile_psd_1709_LSTAR_DEGELING( *, iRadius ) = $
+         psd_1709_LSTAR_DEGELING( *, iRadius, 0, iMu ) / $
+         MAX( psd_1709_LSTAR_DEGELING( *, iRadius, 0, iMu ) )
+      
+      normalized_temporal_profile_psd_1701_LSTAR_DEGELING( *, iRadius ) = $
+         psd_1701_LSTAR_DEGELING( *, iRadius, 0, iMu ) / $
+         MAX( psd_1701_LSTAR_DEGELING( *, iRadius, 0, iMu ) )
+      
+      normalized_temporal_profile_psd_1709_LSTAR_AE8MAX( *, iRadius ) = $
+         psd_1709_LSTAR_AE8MAX( *, iRadius, 0, iMu ) / $
+         MAX( psd_1709_LSTAR_AE8MAX( *, iRadius, 0, iMu ) )
+      
+      normalized_temporal_profile_psd_1701_LSTAR_AE8MAX( *, iRadius ) = $
+         psd_1701_LSTAR_AE8MAX( *, iRadius, 0, iMu ) / $
+         MAX( psd_1701_LSTAR_AE8MAX( *, iRadius, 0, iMu ) )
+      
+      normalized_temporal_profile_psd_1709_LSTAR_AE8MIN( *, iRadius ) = $
+         psd_1709_LSTAR_AE8MIN( *, iRadius, 0, iMu ) / $
+         MAX( psd_1709_LSTAR_AE8MIN( *, iRadius, 0, iMu ) )
+      
+      normalized_temporal_profile_psd_1701_LSTAR_AE8MIN( *, iRadius ) = $
+         psd_1701_LSTAR_AE8MIN( *, iRadius, 0, iMu ) / $
+         MAX( psd_1701_LSTAR_AE8MIN( *, iRadius, 0, iMu ) )
+      
+   ENDFOR
+
+   FOR $
+      iTime = 0, nTime - 1 $
+   DO BEGIN
+
+      normalized_radial_profile_psd_1709_LSTAR_DEGELING( iTime, * ) = $
+         psd_1709_LSTAR_DEGELING( iTime, *, 0, iMu ) / $
+         MAX( psd_1709_LSTAR_DEGELING( iTime, *, 0, iMu ) )
+      
+      normalized_radial_profile_psd_1701_LSTAR_DEGELING( iTime, * ) = $
+         psd_1701_LSTAR_DEGELING( iTime, *, 0, iMu ) / $
+         MAX( psd_1701_LSTAR_DEGELING( iTime, *, 0, iMu ) )
+      
+      normalized_radial_profile_psd_1709_LSTAR_AE8MAX( iTime, * ) = $
+         psd_1709_LSTAR_AE8MAX( iTime, *, 0, iMu ) / $
+         MAX( psd_1709_LSTAR_AE8MAX( iTime, *, 0, iMu ) )
+      
+      normalized_radial_profile_psd_1701_LSTAR_AE8MAX( iTime, * ) = $
+         psd_1701_LSTAR_AE8MAX( iTime, *, 0, iMu ) / $
+         MAX( psd_1701_LSTAR_AE8MAX( iTime, *, 0, iMu ) )
+      
+      normalized_radial_profile_psd_1709_LSTAR_AE8MIN( iTime, * ) = $
+         psd_1709_LSTAR_AE8MIN( iTime, *, 0, iMu ) / $
+         MAX( psd_1709_LSTAR_AE8MIN( iTime, *, 0, iMu ) )
+      
+      normalized_radial_profile_psd_1701_LSTAR_AE8MIN( iTime, * ) = $
+         psd_1701_LSTAR_AE8MIN( iTime, *, 0, iMu ) / $
+         MAX( psd_1701_LSTAR_AE8MIN( iTime, *, 0, iMu ) )
+      
+   ENDFOR
    
    numx_subplots = 2
    x_start = 0.050
@@ -950,11 +1039,18 @@ DO BEGIN
         ( numy_subplots - 1 ) * y_space ) / $
       numy_subplots
    
-   W, numx_subplots, numy_subplots + 1
-   
    fmin = -50.0
    fmax =  50.0
 
+   DEVICE, FILENAME = $
+           'Images/Lstar_Expanded/PSD_February_Plot_mu'+ $
+           STRTRIM( STRING( iMu, FORMAT = '(I03)' ), 2 ) + $
+           '_Lstar_expanded.eps', $
+           XSIZE = 10., YSIZE = 10., /INCHES, $
+           /PORTRAIT, /COLOR, /ENCAPSULATED, BITS_PER_PIXEL = 8
+   
+   W, numx_subplots, numy_subplots + 1
+   
    ny = numy_subplots
    
    LOADCT, 70, /SILENT
@@ -1116,17 +1212,531 @@ DO BEGIN
    
    DEVICE, /CLOSE
 
+   fmin =  0.01
+   fmax =  1.00
+
+   spawn, "mkdir -p Images/Normalized_PSD/Normalized_Temporal_Profile"
+   DEVICE, FILENAME = $
+           'Images/Normalized_PSD/Normalized_Temporal_Profile/Normalized_Temporal_Profile_PSD_'+ $
+           STRTRIM( STRING( xmm_1709_LSTAR_DEGELING( iMu ) * 100., $
+                            FORMAT = '(I04)' ), 2 ) + $
+           '_MeVperG.eps', $
+           XSIZE = 10., YSIZE = 10., /INCHES, $
+           /PORTRAIT, /COLOR, /ENCAPSULATED, BITS_PER_PIXEL = 8
+   
+   W, numx_subplots, numy_subplots + 1
+   
+   ny = numy_subplots
+   ny = numy_subplots
+   
+   LOADCT, 70, /SILENT
+   REVERSECT
+
+   nx = 1
+   IMAGE_CONT, $
+      normalized_temporal_profile_psd_1709_LSTAR_DEGELING, $
+      time_1709_LSTAR_DEGELING, rr_1709_LSTAR_DEGELING, $
+      TITLE = 'DEGELING w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_DEGELING( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      ;; MIN = -2., MAX = 0., $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      normalized_temporal_profile_psd_1701_LSTAR_DEGELING, $
+      time_1701_LSTAR_DEGELING, rr_1701_LSTAR_DEGELING, $
+      TITLE = 'DEGELING w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_DEGELING( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin, fmax ], $
+      DIVISIONS = 2, FORMAT = "(F4.2)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'Normalized PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+
+   LOADCT, 70, /SILENT
+   REVERSECT
+   nx = 1
+   IMAGE_CONT, $
+      normalized_temporal_profile_psd_1709_LSTAR_AE8MAX, $
+      time_1709_LSTAR_AE8MAX, rr_1709_LSTAR_AE8MAX, $
+      TITLE = 'AE8MAX w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_AE8MAX( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      normalized_temporal_profile_psd_1701_LSTAR_AE8MAX, $
+      time_1701_LSTAR_AE8MAX, rr_1701_LSTAR_AE8MAX, $
+      TITLE = 'AE8MAX w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_AE8MAX( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin, fmax ], $
+      DIVISIONS = 2, FORMAT = "(F4.2)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'Normalized PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+
+   LOADCT, 70, /SILENT
+   REVERSECT
+   nx = 1
+   IMAGE_CONT, $
+      normalized_temporal_profile_psd_1709_LSTAR_AE8MIN, $
+      time_1709_LSTAR_AE8MIN, rr_1709_LSTAR_AE8MIN, $
+      TITLE = 'AE8MIN w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_AE8MIN( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      normalized_temporal_profile_psd_1701_LSTAR_AE8MIN, $
+      time_1701_LSTAR_AE8MIN, rr_1701_LSTAR_AE8MIN, $
+      TITLE = 'AE8MIN w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_AE8MIN( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin, fmax ], $
+      DIVISIONS = 2, FORMAT = "(F4.2)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'Normalized PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+   
+   DEVICE, /CLOSE
+
+   spawn, "mkdir -p Images/Normalized_PSD/Normalized_Radial_Profile"
+   DEVICE, FILENAME = $
+           'Images/Normalized_PSD/Normalized_Radial_Profile/Normalized_PSD_'+ $
+           STRTRIM( STRING( xmm_1709_LSTAR_DEGELING( iMu ) * 100., $
+                            FORMAT = '(I04)' ), 2 ) + $
+           '_MeVperG.eps', $
+           XSIZE = 10., YSIZE = 10., /INCHES, $
+           /PORTRAIT, /COLOR, /ENCAPSULATED, BITS_PER_PIXEL = 8
+   
+   W, numx_subplots, numy_subplots + 1
+   
+   ny = numy_subplots
+   ny = numy_subplots
+   
+   LOADCT, 70, /SILENT
+   REVERSECT
+
+   nx = 1
+   IMAGE_CONT, $
+      normalized_radial_profile_psd_1709_LSTAR_DEGELING, $
+      time_1709_LSTAR_DEGELING, rr_1709_LSTAR_DEGELING, $
+      TITLE = 'DEGELING w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_DEGELING( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      ;; MIN = -2., MAX = 0., $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      normalized_radial_profile_psd_1701_LSTAR_DEGELING, $
+      time_1701_LSTAR_DEGELING, rr_1701_LSTAR_DEGELING, $
+      TITLE = 'DEGELING w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_DEGELING( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin, fmax ], $
+      DIVISIONS = 2, FORMAT = "(F4.2)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'Normalized PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+
+   LOADCT, 70, /SILENT
+   REVERSECT
+   nx = 1
+   IMAGE_CONT, $
+      normalized_radial_profile_psd_1709_LSTAR_AE8MAX, $
+      time_1709_LSTAR_AE8MAX, rr_1709_LSTAR_AE8MAX, $
+      TITLE = 'AE8MAX w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_AE8MAX( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      normalized_radial_profile_psd_1701_LSTAR_AE8MAX, $
+      time_1701_LSTAR_AE8MAX, rr_1701_LSTAR_AE8MAX, $
+      TITLE = 'AE8MAX w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_AE8MAX( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin, fmax ], $
+      DIVISIONS = 2, FORMAT = "(F4.2)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'Normalized PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+
+   LOADCT, 70, /SILENT
+   REVERSECT
+   nx = 1
+   IMAGE_CONT, $
+      normalized_radial_profile_psd_1709_LSTAR_AE8MIN, $
+      time_1709_LSTAR_AE8MIN, rr_1709_LSTAR_AE8MIN, $
+      TITLE = 'AE8MIN w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_AE8MIN( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      normalized_radial_profile_psd_1701_LSTAR_AE8MIN, $
+      time_1701_LSTAR_AE8MIN, rr_1701_LSTAR_AE8MIN, $
+      TITLE = 'AE8MIN w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_AE8MIN( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin, MAX = fmax, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin, fmax ], $
+      DIVISIONS = 2, FORMAT = "(F4.2)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'Normalized PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+   
+   DEVICE, /CLOSE
+
+   fmax_DEGELING = $
+      MAX( [ ALOG10( psd_1709_LSTAR_DEGELING( *, *, 0, iMu ) ), $
+             ALOG10( psd_1701_LSTAR_DEGELING( *, *, 0, iMu ) ) ] )
+   fmax_AE8MAX = $
+      MAX( [ ALOG10( psd_1709_LSTAR_AE8MAX( *, *, 0, iMu ) ), $
+             ALOG10( psd_1701_LSTAR_AE8MAX( *, *, 0, iMu ) ) ] )
+   fmax_AE8MIN = $
+      MAX( [ ALOG10( psd_1709_LSTAR_AE8MIN( *, *, 0, iMu ) ), $
+             ALOG10( psd_1701_LSTAR_AE8MIN( *, *, 0, iMu ) ) ] )
+
+   fmin_DEGELING = fmax_DEGELING - 5.
+   fmin_AE8MAX = fmax_AE8MAX - 5.
+   fmin_AE8MIN = fmax_AE8MIN - 5.
+   
+   spawn, "mkdir -p Images/Log_PSD"
+   DEVICE, FILENAME = $
+           'Images/Log_PSD/Log_PSD_'+ $
+           STRTRIM( STRING( xmm_1709_LSTAR_DEGELING( iMu ) * 100., $
+                            FORMAT = '(I04)' ), 2 ) + $
+           '_MeVperG.eps', $
+           XSIZE = 10., YSIZE = 10., /INCHES, $
+           /PORTRAIT, /COLOR, /ENCAPSULATED, BITS_PER_PIXEL = 8
+   
+   W, numx_subplots, numy_subplots + 1
+   
+   ny = numy_subplots
+   ny = numy_subplots
+   
+   LOADCT, 70, /SILENT
+   REVERSECT
+
+   nx = 1
+   IMAGE_CONT, $
+      alog10( psd_1709_LSTAR_DEGELING( *, *, 0, iMu ) ), $
+      time_1709_LSTAR_DEGELING, rr_1709_LSTAR_DEGELING, $
+      TITLE = 'DEGELING w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_DEGELING( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin_DEGELING, MAX = fmax_DEGELING, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      alog10( psd_1701_LSTAR_DEGELING( *, *, 0, iMu ) ), $
+      time_1701_LSTAR_DEGELING, rr_1701_LSTAR_DEGELING, $
+      TITLE = 'DEGELING w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_DEGELING( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin_DEGELING, MAX = fmax_DEGELING, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin_DEGELING, fmax_DEGELING ], $
+      DIVISIONS = 4, FORMAT = "(F5.1)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'log_{10} PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+
+   LOADCT, 70, /SILENT
+   REVERSECT
+   nx = 1
+   IMAGE_CONT, $
+      alog10( psd_1709_LSTAR_AE8MAX( *, *, 0, iMu ) ), $
+      time_1709_LSTAR_AE8MAX, rr_1709_LSTAR_AE8MAX, $
+      TITLE = 'AE8MAX w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_AE8MAX( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin_AE8MAX, MAX = fmax_AE8MAX, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      alog10( psd_1701_LSTAR_AE8MAX( *, *, 0, iMu ) ), $
+      time_1701_LSTAR_AE8MAX, rr_1701_LSTAR_AE8MAX, $
+      TITLE = 'AE8MAX w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_AE8MAX( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin_AE8MAX, MAX = fmax_AE8MAX, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin_AE8MAX, fmax_AE8MAX ], $
+      DIVISIONS = 4, FORMAT = "(F5.1)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'log_{10} PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+
+   LOADCT, 70, /SILENT
+   REVERSECT
+   nx = 1
+   IMAGE_CONT, $
+      alog10( psd_1709_LSTAR_AE8MIN( *, *, 0, iMu ) ), $
+      time_1709_LSTAR_AE8MIN, rr_1709_LSTAR_AE8MIN, $
+      TITLE = 'AE8MIN w/o Waves, mu = ' + $
+      STRING( xmm_1709_LSTAR_AE8MIN( iMu ) * 100., FORMAT='(I4)') + $
+      ' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin_AE8MIN, MAX = fmax_AE8MIN, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   nx = nx + 1
+   
+   IMAGE_CONT, $
+      alog10( psd_1701_LSTAR_AE8MIN( *, *, 0, iMu ) ), $
+      time_1701_LSTAR_AE8MIN, rr_1701_LSTAR_AE8MIN, $
+      TITLE = 'AE8MIN w/ Waves, mu = ' + $
+      	STRING( xmm_1701_LSTAR_AE8MIN( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G', $
+      XTITLE = 'Simulation Time [ hours ]', $
+      YTITLE = TEXTOIDL( 'L [ R_E ]' ), $
+      MIN = fmin_AE8MIN, MAX = fmax_AE8MIN, $
+      POSITION = $
+      [ x_start + ( nx - 1 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_start + ( nx - 0 ) * x_subplot_size + ( nx - 1 ) * x_space, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, CHARTHICK = 2
+   COLORBAR, $
+      RANGE = [ fmin_AE8MIN, fmax_AE8MIN ], $
+      DIVISIONS = 4, FORMAT = "(F5.1)", $
+      /VERTICAL, /RIGHT, $
+      TITLE = TEXTOIDL( 'log_{10} PSD [ c / MeV cm ]^3' ), $
+      POSITION = $
+      [ x_end + .025, $
+        y_start + ( ny - 1 ) * y_subplot_size + ( ny - 0 ) * y_space, $
+        x_end + .050, $
+        y_start + ( ny - 0 ) * y_subplot_size + ( ny - 1 ) * y_space ], $
+      /NORM, $
+      TICKLEN = -0.25, $
+      CHARSIZE = 2, CHARTHICK = 3
+   ny = ny - 1
+   
+   DEVICE, /CLOSE
+
 ENDFOR
 PRINT, "FINISHED FEBRUARY PLOTS:"
 STOP
 
 SET_PLOT, 'X'
-
-dim = SIZE( psd_1701_LSTAR_AE8MAX, /DIMENSIONS )
-nTime = dim( 0 )
-nR = dim( 1 )
-nMLT = dim( 2 )
-nMu = dim( 3 )
 
 psd_2d_Time_average_1701_LSTAR_DEGELING = FLTARR( nR, nMu )
 psd_2d_Time_average_1701_LSTAR_AE8MAX = FLTARR( nR, nMu )
@@ -1164,8 +1774,6 @@ DO BEGIN
 
 ENDFOR
 
-STOP
-
 test_string = ''
 FOR $
    iMu = mu_minloc, mu_maxloc $
@@ -1177,16 +1785,25 @@ DO BEGIN
    ;; W, 2, 3
    WINDOW, 4, TITLE = 'Line Plot'
    W, 1, 1
-   LOADCT, 0, /SILENT
    yr_max = $
       0.
       ;; MAX( CEIL( ALOG10( psd_2d_time_average_1709_LSTAR( 16 : *, iMu ) ) * 1. ) )
    yr_min = yr_max - 15.
 
+   LOADCT, 0, /SILENT
 
+   color_AE8MAX = 100
+   TVLCT, 255, 000, 000, color_AE8MAX
+   
+   color_DEGELING = 101
+   TVLCT, 255, 000, 000, color_DEGELING
+   
+   color_AE8MIN = 102
+   TVLCT, 000, 000, 255, color_AE8MIN
+   
    PLOT, $
       rr_1709_LSTAR_AE8MAX, $
-      psd_2d_time_average_1709_LSTAR_AE8MAX( *, iMu ), $
+      psd_1709_Lstar_AE8MAX( 0, *, 0, iMu ), $
       TITLE = 'AE8MAX w/o  Waves, mu = ' + $
       STRING( xmm_1709_Lstar_Ae8max( iMu ) * 100., FORMAT='(I4)') + $
       ' MeV / G', $
@@ -1198,10 +1815,14 @@ DO BEGIN
       ;; YRANGE = [ 0., MAX( psd_1709_LSTAR_AE8MAX( 0, *, iMu ) ) ] * 1.2, $
       PSYM = -7, CHARSIZE = 2, CHARTHICK = 2
    OPLOT, $
-      rr_1701_LSTAR_AE8MAX, $
-      psd_2d_time_average_1701_LSTAR_AE8MAX( *, iMu ), $
-      PSYM =  4
-   TVLCT, 255, 000, 000, 101
+      rr_1709_LSTAR_DEGELING, $
+      psd_1709_Lstar_DEGELING( 0, *, 0, iMu ), $
+      PSYM =  -4
+   OPLOT, $
+      rr_1709_LSTAR_DEGELING, $
+      psd_1709_Lstar_DEGELING( 0, *, 0, iMu ), $
+      PSYM =  -4
+   
    OPLOT, $
       rr_1709_LSTAR_AE8MIN, $
       psd_2d_time_average_1709_LSTAR_AE8MIN( *, iMu ), $
@@ -1211,7 +1832,6 @@ DO BEGIN
       psd_2d_time_average_1701_LSTAR_AE8MIN( *, iMu ), $
       PSYM =  5, COLOR = 101
 
-   TVLCT, 000, 000, 255, 102
    OPLOT, $
       rr_1709_LSTAR_DEGELING, $
       psd_2d_time_average_1709_LSTAR_DEGELING( *, iMu ), $
@@ -1222,13 +1842,82 @@ DO BEGIN
       PSYM =  6, COLOR = 102
    
    SET_PLOT, 'PS'
+   spawn, 'mkdir -p Images/PSD_Line_Plots/Line_Plot_at_0hrs/'
    DEVICE, $
-      FILENAME = 'Images/Lstar_Expanded/PSD_Line_Plot_mu' + $
-      		STRTRIM( STRING( iMu, FORMAT = '(I03)' ), 2 ) + $
-      '_Lstar_expanded.eps', $
+      FILENAME = $
+      'Images/PSD_Line_Plots/Line_Plot_at_0hrs/' + $
+      'PSD_Line_Plot_at_0hrs_' + $
+      STRTRIM( STRING( xmm_1709_Lstar_Ae8max( iMu ) * 100., $
+                       FORMAT = '(I04)' ), 2 ) + $
+      'MeVperG.eps', $
       XSIZE = 10., YSIZE = 10., /INCHES, $
       /ENCAPSULATED, /PORTRAIT, /COLOR, BITS_PER_PIXEL = 8
-   
+
+   W, 1, 1
+   LOADCT, 0, /SILENT
+   TVLCT, 255, 000, 000, 101
+   TVLCT, 000, 000, 255, 102
+
+   PLOT, $
+      rr_1709_LSTAR_AE8MAX, $
+      psd_1709_LSTAR_AE8MAX( 0, *, 0, iMu ), $
+      TITLE = STRING( xmm_1709_Lstar_Ae8max( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G @ 00:00 Simulation Time', $
+      XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+      YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+      YRANGE = 10^[ yr_min, yr_max  ], $
+      ;; YRANGE = [ 1d-10, 1d0 ], $
+      ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+      ;; YRANGE = [ 0., MAX( psd_1709_LSTAR_AE8MAX( 0, *, iMu ) ) ] * 1.2, $
+      PSYM = -7, CHARSIZE = 2, CHARTHICK = 3, THICK = 2, $
+      XTHICK  = 3, YTHICK = 3
+   OPLOT, $
+      rr_1701_LSTAR_AE8MAX, $
+      psd_1701_LSTAR_AE8MAX( 0, *, 0, iMu ), $
+      PSYM =  4
+
+   TVLCT, 255, 000, 000, 101
+   OPLOT, $
+      rr_1709_LSTAR_AE8MIN, $
+      psd_1709_LSTAR_AE8MIN( 0, *, 0, iMu ), $
+      PSYM = -7, COLOR = 101
+   OPLOT, $
+      rr_1701_LSTAR_AE8MIN, $
+      psd_1701_LSTAR_AE8MIN( 0, *, 0, iMu ), $
+      PSYM =  5, COLOR = 101
+
+   TVLCT, 000, 000, 255, 102
+   OPLOT, $
+      rr_1709_LSTAR_DEGELING, $
+      psd_1709_LSTAR_DEGELING( 0, *, 0, iMu ), $
+      PSYM = -7, COLOR = 102
+   OPLOT, $
+      rr_1701_LSTAR_DEGELING, $
+      psd_1701_LSTAR_DEGELING( 0, *, 0, iMu ), $
+      PSYM =  6, COLOR = 102
+
+   LEGEND, $
+      [ 'Null AE8MAX', 'Waves AE8MAX', $
+        'Null AE8MIN', 'Waves AE8MIN', $
+        'Null Degeling', 'Waves Degeling' ], $
+      PSYM = [ -7, 4, -7, 5, -7, 6 ], LINESTYLE = 0, $
+      COLOR = [ 000, 000, 101, 101, 102, 102 ], $
+      BOX = 1, /BOTTOM, /RIGHT, NUMBER = 1.5, $
+      CHARTHICK = 3, THICK = 3
+
+   DEVICE, /CLOSE
+
+   spawn, 'mkdir -p Images/PSD_Line_Plots/Line_Plot_at_6hrs/'
+   DEVICE, $
+      FILENAME = $
+      'Images/PSD_Line_Plots/Line_Plot_at_6hrs/' + $
+      'PSD_Line_Plot_at_6hrs_' + $
+      STRTRIM( STRING( xmm_1709_Lstar_Ae8max( iMu ) * 100., $
+                       FORMAT = '(I04)' ), 2 ) + $
+      'MeVperG.eps', $
+      XSIZE = 10., YSIZE = 10., /INCHES, $
+      /ENCAPSULATED, /PORTRAIT, /COLOR, BITS_PER_PIXEL = 8
+
    W, 1, 1
    LOADCT, 0, /SILENT
    TVLCT, 255, 000, 000, 101
@@ -1238,7 +1927,7 @@ DO BEGIN
       rr_1709_LSTAR_AE8MAX, $
       psd_2d_time_average_1709_LSTAR_AE8MAX( *, iMu ), $
       TITLE = STRING( xmm_1709_Lstar_Ae8max( iMu ) * 100., FORMAT='(I4)') + $
-      	' MeV / G', $
+      	' MeV / G @ 06:00 Simulation Time', $
       XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
       YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
       YRANGE = 10^[ yr_min, yr_max  ], $
@@ -1251,6 +1940,7 @@ DO BEGIN
       rr_1701_LSTAR_AE8MAX, $
       psd_2d_time_average_1701_LSTAR_AE8MAX( *, iMu ), $
       PSYM =  4
+
    TVLCT, 255, 000, 000, 101
    OPLOT, $
       rr_1709_LSTAR_AE8MIN, $
@@ -1281,7 +1971,144 @@ DO BEGIN
       CHARTHICK = 3, THICK = 3
 
    DEVICE, /CLOSE
-   ;; READ, test_string
+
+
+   spawn, 'mkdir -p Images/PSD_Line_Plots/Line_Plot_Null_Constant/'
+   DEVICE, $
+      FILENAME = $
+      'Images/PSD_Line_Plots/Line_Plot_Null_Constant/' + $
+      'PSD_Line_Plot_Null_Constant_' + $
+      STRTRIM( STRING( xmm_1709_Lstar_Ae8max( iMu ) * 100., $
+                       FORMAT = '(I04)' ), 2 ) + $
+      'MeVperG.eps', $
+      XSIZE = 10., YSIZE = 10., /INCHES, $
+      /ENCAPSULATED, /PORTRAIT, /COLOR, BITS_PER_PIXEL = 8
+
+   W, 1, 1
+   LOADCT, 0, /SILENT
+   TVLCT, 255, 000, 000, 101
+   TVLCT, 000, 000, 255, 102
+
+   PLOT, $
+      rr_1709_LSTAR_AE8MAX, $
+      psd_1709_LSTAR_AE8MAX( 0, *, 0, iMu ), $
+      TITLE = STRING( xmm_1709_Lstar_Ae8max( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G in Null Simulation', $
+      XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+      YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+      YRANGE = 10^[ yr_min, yr_max  ], $
+      ;; YRANGE = [ 1d-10, 1d0 ], $
+      ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+      ;; YRANGE = [ 0., MAX( psd_1709_LSTAR_AE8MAX( 0, 0, *, 0, iMu ) ) ] * 1.2, $
+      PSYM = -7, CHARSIZE = 2, CHARTHICK = 3, THICK = 2, $
+      XTHICK  = 3, YTHICK = 3
+   OPLOT, $
+      rr_1709_LSTAR_AE8MAX, $
+      psd_2d_time_average_1709_LSTAR_AE8MAX( *, iMu ), $
+      PSYM =  4
+
+   TVLCT, 255, 000, 000, 101
+   OPLOT, $
+      rr_1709_LSTAR_AE8MIN, $
+      psd_1709_LSTAR_AE8MIN( 0, *, 0, iMu ), $
+      PSYM = -7, COLOR = 101
+   OPLOT, $
+      rr_1709_LSTAR_AE8MIN, $
+      psd_2d_time_average_1709_LSTAR_AE8MIN( *, iMu ), $
+      PSYM =  5, COLOR = 101
+
+   TVLCT, 000, 000, 255, 102
+   OPLOT, $
+      rr_1709_LSTAR_DEGELING, $
+      psd_1709_LSTAR_DEGELING( 0, *, 0, iMu ), $
+      PSYM = -7, COLOR = 102
+   OPLOT, $
+      rr_1709_LSTAR_DEGELING, $
+      psd_2d_time_average_1709_LSTAR_DEGELING( *, iMu ), $
+      PSYM =  6, COLOR = 102
+
+   LEGEND, $
+      [ 'AE8MAX @ t=00:00', $
+        'AE8MAX @ t=06:00', $
+        'AE8MIN @ t=00:00', $
+        'AE8MIN @ t=06:00', $
+        'DEGELING @ t=00:00', $
+        'DEGELING @ t=06:00' ], $
+      PSYM = [ -7, 4, -7, 5, -7, 6 ], LINESTYLE = 0, $
+      COLOR = [ 000, 000, 101, 101, 102, 102 ], $
+      BOX = 1, /BOTTOM, /RIGHT, NUMBER = 1.5, $
+      CHARTHICK = 3, THICK = 3
+
+   DEVICE, /CLOSE
+
+   spawn, 'mkdir -p Images/PSD_Line_Plots/Line_Plot_Waves_Constant/'
+   DEVICE, $
+      FILENAME = $
+      'Images/PSD_Line_Plots/Line_Plot_Waves_Constant/' + $
+      'PSD_Line_Plot_Waves_Constant_' + $
+      STRTRIM( STRING( xmm_1701_Lstar_AE8MAX( iMu ) * 100., $
+                       FORMAT = '(I04)' ), 2 ) + $
+      'MeVperG.eps', $
+      XSIZE = 10., YSIZE = 10., /INCHES, $
+      /ENCAPSULATED, /PORTRAIT, /COLOR, BITS_PER_PIXEL = 8
+
+   W, 1, 1
+   LOADCT, 0, /SILENT
+   TVLCT, 255, 000, 000, 101
+   TVLCT, 000, 000, 255, 102
+
+   PLOT, $
+      rr_1701_LSTAR_AE8MAX, $
+      psd_1701_LSTAR_AE8MAX( 0, *, 0, iMu ), $
+      TITLE = STRING( xmm_1701_Lstar_AE8MAX( iMu ) * 100., FORMAT='(I4)') + $
+      	' MeV / G in Waves Simulation', $
+      XTITLE = TEXTOIDL( 'L [ R_E ]' ), XMINOR = 8, $
+      YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), /YLOG, $
+      YRANGE = 10^[ yr_min, yr_max  ], $
+      ;; YRANGE = [ 1d-10, 1d0 ], $
+      ;; YTITLE = TEXTOIDL( 'PSD [ c / MeV cm ]^3' ), $
+      ;; YRANGE = [ 0., MAX( psd_1701_LSTAR_AE8MAX( 0, 0, *, 0, iMu ) ) ] * 1.2, $
+      PSYM = -7, CHARSIZE = 2, CHARTHICK = 3, THICK = 2, $
+      XTHICK  = 3, YTHICK = 3
+   OPLOT, $
+      rr_1701_LSTAR_AE8MAX, $
+      psd_2d_time_average_1701_LSTAR_AE8MAX( *, iMu ), $
+      PSYM =  4
+
+   TVLCT, 255, 000, 000, 101
+   OPLOT, $
+      rr_1701_LSTAR_AE8MIN, $
+      psd_1701_LSTAR_AE8MIN( 0, *, 0, iMu ), $
+      PSYM = -7, COLOR = 101
+   OPLOT, $
+      rr_1701_LSTAR_AE8MIN, $
+      psd_2d_time_average_1701_LSTAR_AE8MIN( *, iMu ), $
+      PSYM =  5, COLOR = 101
+
+   TVLCT, 000, 000, 255, 102
+   OPLOT, $
+      rr_1701_LSTAR_DEGELING, $
+      psd_1701_LSTAR_DEGELING( 0, *, 0, iMu ), $
+      PSYM = -7, COLOR = 102
+   OPLOT, $
+      rr_1701_LSTAR_DEGELING, $
+      psd_2d_time_average_1701_LSTAR_DEGELING( *, iMu ), $
+      PSYM =  6, COLOR = 102
+
+   LEGEND, $
+      [ 'AE8MAX @ t=00:00', $
+        'AE8MAX @ t=06:00', $
+        'AE8MIN @ t=00:00', $
+        'AE8MIN @ t=06:00', $
+        'DEGELING @ t=00:00', $
+        'DEGELING @ t=06:00' ], $
+      PSYM = [ -7, 4, -7, 5, -7, 6 ], LINESTYLE = 0, $
+      COLOR = [ 000, 000, 101, 101, 102, 102 ], $
+      BOX = 1, /BOTTOM, /RIGHT, NUMBER = 1.5, $
+      CHARTHICK = 3, THICK = 3
+
+   DEVICE, /CLOSE
+   READ, test_string
 
    SET_PLOT,'X'
    
